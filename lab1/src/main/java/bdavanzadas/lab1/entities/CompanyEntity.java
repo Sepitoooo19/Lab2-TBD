@@ -26,5 +26,6 @@ public class CompanyEntity {
     private int deliveries;
     private int failedDeliveries;
     private int totalSales;
+    private String ubication;
 
 }
