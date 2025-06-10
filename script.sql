@@ -50,7 +50,8 @@ CREATE TABLE companies (
                            type VARCHAR(50),               -- Tipo de compañía
                            deliveries INT DEFAULT 0,       -- Total de entregas realizadas
                            failed_deliveries INT DEFAULT 0,-- Total de entregas fallidas
-                           total_sales FLOAT DEFAULT 0     -- Total de ventas realizadas
+                           total_sales FLOAT DEFAULT 0,     -- Total de ventas realizadas
+                           ubication geometry(Point, 4326)
 );
 
 -- Tabla: payment_methods
@@ -119,6 +120,7 @@ CREATE TABLE dealers (
                          vehicle VARCHAR(50),
                          plate VARCHAR(20),
                          user_id INT UNIQUE,
+                         ubication geometry(Point, 4326),
                          FOREIGN KEY (user_id) REFERENCES users(id)
 );
 

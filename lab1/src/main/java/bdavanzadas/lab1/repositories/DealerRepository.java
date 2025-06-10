@@ -35,8 +35,8 @@ public class DealerRepository  implements DealerRepositoryInt {
      *
      */
     public void save(DealerEntity dealer) {
-        String sql = "INSERT INTO dealers (user_id, name, rut, email, phone, vehicle, plate) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, dealer.getUserId(), dealer.getName(), dealer.getRut(), dealer.getEmail(), dealer.getPhone(), dealer.getVehicle(), dealer.getPlate());
+        String sql = "INSERT INTO dealers (user_id, name, rut, email, phone, vehicle, plate, ubication) VALUES (?, ?, ?, ?, ?, ?, ?, ST_GeomFromText(?, 4326))";
+        jdbcTemplate.update(sql, dealer.getUserId(), dealer.getName(), dealer.getRut(), dealer.getEmail(), dealer.getPhone(), dealer.getVehicle(), dealer.getPlate(), dealer.getUbication());
     }
 
 
@@ -47,8 +47,8 @@ public class DealerRepository  implements DealerRepositoryInt {
      *
      */
     public void update(DealerEntity dealer) {
-        String sql = "UPDATE dealers SET name = ?, rut = ?, email = ?, phone = ?, vehicle = ?, plate = ? WHERE id = ?";
-        jdbcTemplate.update(sql, dealer.getName(), dealer.getRut(), dealer.getEmail(), dealer.getPhone(), dealer.getVehicle(), dealer.getPlate(), dealer.getId());
+        String sql = "UPDATE dealers SET name = ?, rut = ?, email = ?, phone = ?, vehicle = ?, plate = ?, ubication = ST_GeomFromText(?, 4326) WHERE id = ?";
+        jdbcTemplate.update(sql, dealer.getName(), dealer.getRut(), dealer.getEmail(), dealer.getPhone(), dealer.getVehicle(), dealer.getPlate(), dealer.getUbication(), dealer.getId());
     }
 
     /**
@@ -69,7 +69,7 @@ public class DealerRepository  implements DealerRepositoryInt {
      *
      */
     public DealerEntity findById(int id) {
-        String sql = "SELECT * FROM dealers WHERE id = ?";
+        String sql = "SELECT id, name, rut, email, phone, vehicle, plate, user_id, ST_AsText(ubication) as ubication FROM dealers";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> {
             DealerEntity dealer = new DealerEntity();
             dealer.setId(rs.getInt("id"));
@@ -79,6 +79,7 @@ public class DealerRepository  implements DealerRepositoryInt {
             dealer.setPhone(rs.getString("phone"));
             dealer.setVehicle(rs.getString("vehicle"));
             dealer.setPlate(rs.getString("plate"));
+            dealer.setUbication(rs.getString("ubication"));
             return dealer;
         });
     }
@@ -91,7 +92,7 @@ public class DealerRepository  implements DealerRepositoryInt {
      *
      */
     public List<DealerEntity> findAll() {
-        String sql = "SELECT * FROM dealers";
+        String sql = "SELECT id, name, rut, email, phone, vehicle, plate, user_id, ST_AsText(ubication) as ubication FROM dealers";
         return jdbcTemplate.query(sql, (rs, rowNum) -> {
             DealerEntity dealer = new DealerEntity();
             dealer.setId(rs.getInt("id"));
@@ -101,6 +102,7 @@ public class DealerRepository  implements DealerRepositoryInt {
             dealer.setPhone(rs.getString("phone"));
             dealer.setVehicle(rs.getString("vehicle"));
             dealer.setPlate(rs.getString("plate"));
+            dealer.setUbication(rs.getString("ubication"));
             return dealer;
         });
     }
@@ -313,6 +315,7 @@ public class DealerRepository  implements DealerRepositoryInt {
                 dealer.setPhone(rs.getString("phone"));
                 dealer.setVehicle(rs.getString("vehicle"));
                 dealer.setPlate(rs.getString("plate"));
+                dealer.setUbication(rs.getString("ubication"));
                 return dealer;
             });
         } catch (EmptyResultDataAccessException e) {

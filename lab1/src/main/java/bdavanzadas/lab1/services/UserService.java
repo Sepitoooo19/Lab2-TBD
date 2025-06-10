@@ -156,6 +156,7 @@ public class UserService {
         dealer.setVehicle(vehicle);
         dealer.setPlate(plate);
         dealer.setUserId(user.getId());
+        dealer.setUbication("POINT(0 0)");
 
         dealerRepository.save(dealer);
     }
