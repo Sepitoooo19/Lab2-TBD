@@ -22,6 +22,6 @@ public class ClientEntity {
     private String email;
     private String phone;
     private String address;
-    private int userId;
-    private String ubication;// Relación con UserEntity
+    private int userId; // Relación con UserEntity
+    private String ubication; //WKT
 }

@@ -89,6 +89,7 @@ public class AuthController {
                 String phone = (String) body.get("phone");
                 String vehicle = (String) body.get("vehicle");
                 String plate = (String) body.get("plate");
+                String ubication = (String) body.get("ubication");
 
                 userService.registerDealer(username, password, name, rut, email, phone, vehicle, plate);
             }

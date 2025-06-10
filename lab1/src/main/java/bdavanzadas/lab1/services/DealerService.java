@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 
 /**
@@ -69,6 +70,8 @@ public class DealerService {
      */
     @Transactional
     public void saveDealer(DealerEntity dealer) {
+        // Validar la ubicación antes de guardar
+        validateUbicacion(dealer.getUbication());
         dealerRepository.save(dealer);
     }
 
@@ -80,6 +83,8 @@ public class DealerService {
      */
     @Transactional
     public void updateDealer(DealerEntity dealer) {
+        // Validar la ubicación antes de actualizar
+        validateUbicacion(dealer.getUbication());
         dealerRepository.update(dealer);
     }
 
@@ -105,6 +110,20 @@ public class DealerService {
             return "Sin asignar"; // Si el dealerId es null, devuelve "Sin asignar"
         }
         return dealerRepository.findDealerNameById(dealerId);
+    }
+
+    // Patrón para validar WKT (ej: "POINT(-70.123 -33.456)")
+    private static final Pattern WKT_PATTERN = Pattern.compile(
+            "^POINT\\(-?\\d+\\.?\\d* -?\\d+\\.?\\d*\\)$"
+    );
+
+    // --- Método de validación adicional ---
+    private void validateUbicacion(String ubicacion) {
+        if (ubicacion == null || !WKT_PATTERN.matcher(ubicacion).matches()) {
+            throw new IllegalArgumentException(
+                    "Formato WKT inválido. Debe ser 'POINT(longitud latitud)'."
+            );
+        }
     }
 
 

@@ -23,5 +23,6 @@ public class DealerEntity {
     private String email;
     private String vehicle;
     private String plate;
+    private String ubication; //WKT
     private int userId; // Relación con UserEntity
 }
