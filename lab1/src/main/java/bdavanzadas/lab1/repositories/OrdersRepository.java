@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import bdavanzadas.lab1.dtos.OrderTotalProductsDTO;
 import bdavanzadas.lab1.dtos.OrderNameAddressDTO;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ public class OrdersRepository implements OrdersRepositoryInt {
      *
      */
     public List<OrdersEntity> findAll() {
-        String sql = "SELECT * FROM orders";
+        String sql = "SELECT id, order_date, delivery_date, status, client_id, dealer_id, total_price, ST_AsText(estimated_route) AS estimated_route FROM orders";
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 new OrdersEntity(
                         rs.getInt("id"),
@@ -49,8 +50,9 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
@@ -98,7 +100,7 @@ public class OrdersRepository implements OrdersRepositoryInt {
      *
      */
     public OrdersEntity findById(int id) {
-        String sql = "SELECT * FROM orders WHERE id = ?";
+        String sql = "SELECT id, order_date, delivery_date, status, client_id, dealer_id, total_price, ST_AsText(estimated_route) AS estimated_route FROM orders WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
                 new OrdersEntity(
                         rs.getInt("id"),
@@ -106,10 +108,10 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
-                )
-        );
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
+                ));
     }
 
     /**
@@ -119,7 +121,7 @@ public class OrdersRepository implements OrdersRepositoryInt {
      *
      */
     public List<OrdersEntity> findByClientId(int clientId) {
-        String sql = "SELECT * FROM orders WHERE client_id = ?";
+        String sql = "SELECT id, order_date, delivery_date, status, client_id, dealer_id, total_price, ST_AsText(estimated_route) AS estimated_route FROM orders WHERE client_id = ?";
         return jdbcTemplate.query(sql, new Object[]{clientId}, (rs, rowNum) ->
                 new OrdersEntity(
                         rs.getInt("id"),
@@ -127,12 +129,12 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
-
     /**
      * Metodo para buscar un order por su dealerId.
      * @param "dealerId" El id del dealer a buscar.
@@ -140,7 +142,7 @@ public class OrdersRepository implements OrdersRepositoryInt {
      *
      */
     public List<OrdersEntity> findByDealerId(int dealerId) {
-        String sql = "SELECT * FROM orders WHERE dealer_id = ?";
+        String sql = "SELECT id, order_date, delivery_date, status, client_id, dealer_id, total_price, ST_AsText(estimated_route) AS estimated_route FROM orders WHERE dealer_id = ?";
         return jdbcTemplate.query(sql, new Object[]{dealerId}, (rs, rowNum) ->
                 new OrdersEntity(
                         rs.getInt("id"),
@@ -148,12 +150,12 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
-
 
 
     /**
@@ -189,8 +191,9 @@ public class OrdersRepository implements OrdersRepositoryInt {
             return topSpender;
         });
     }
+
     public List<OrdersEntity> findOrdersByMonth(int month, int year) {
-        String sql = "SELECT * FROM orders WHERE EXTRACT(MONTH FROM order_date) = ? AND EXTRACT(YEAR FROM order_date) = ?";
+        String sql = "SELECT id, order_date, delivery_date, status, client_id, dealer_id, total_price, ST_AsText(estimated_route) AS estimated_route FROM orders WHERE EXTRACT(MONTH FROM order_date) = ? AND EXTRACT(YEAR FROM order_date) = ?";
         return jdbcTemplate.query(sql, new Object[]{month, year}, (rs, rowNum) ->
                 new OrdersEntity(
                         rs.getInt("id"),
@@ -198,12 +201,12 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
-
 
 
     /**
@@ -216,19 +219,20 @@ public class OrdersRepository implements OrdersRepositoryInt {
      * */
     public List<OrdersEntity> findFailedOrdersByCompanyId(int companyId) {
         String sql = """
-        SELECT 
-            o.id,
-            o.order_date,
-            o.delivery_date,
-            o.status,
-            o.client_id,
-            o.dealer_id,
-            o.total_price
-        FROM orders o
-        JOIN order_products op ON o.id = op.order_id
-        JOIN products p ON op.product_id = p.id
-        JOIN companies c ON p.company_id = c.id
-        WHERE c.id = ? AND o.status = 'FALLIDA'
+    SELECT 
+        o.id,
+        o.order_date,
+        o.delivery_date,
+        o.status,
+        o.client_id,
+        o.dealer_id,
+        o.total_price,
+        ST_AsText(o.estimated_route) AS estimated_route
+    FROM orders o
+    JOIN order_products op ON o.id = op.order_id
+    JOIN products p ON op.product_id = p.id
+    JOIN companies c ON p.company_id = c.id
+    WHERE c.id = ? AND o.status = 'FALLIDA'
     """;
         return jdbcTemplate.query(sql, new Object[]{companyId}, (rs, rowNum) ->
                 new OrdersEntity(
@@ -237,8 +241,9 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
@@ -256,19 +261,20 @@ public class OrdersRepository implements OrdersRepositoryInt {
 
     public List<OrdersEntity> findDeliveredOrdersByCompanyId(int companyId) {
         String sql = """
-        SELECT 
-            o.id,
-            o.order_date,
-            o.delivery_date,
-            o.status,
-            o.client_id,
-            o.dealer_id,
-            o.total_price
-        FROM orders o
-        JOIN order_products op ON o.id = op.order_id
-        JOIN products p ON op.product_id = p.id
-        JOIN companies c ON p.company_id = c.id
-        WHERE c.id = ? AND o.status = 'ENTREGADO'
+    SELECT 
+        o.id,
+        o.order_date,
+        o.delivery_date,
+        o.status,
+        o.client_id,
+        o.dealer_id,
+        o.total_price,
+        ST_AsText(o.estimated_route) AS estimated_route
+    FROM orders o
+    JOIN order_products op ON o.id = op.order_id
+    JOIN products p ON op.product_id = p.id
+    JOIN companies c ON p.company_id = c.id
+    WHERE c.id = ? AND o.status = 'ENTREGADO'
     """;
         return jdbcTemplate.query(sql, new Object[]{companyId}, (rs, rowNum) ->
                 new OrdersEntity(
@@ -277,8 +283,9 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
@@ -304,11 +311,19 @@ public class OrdersRepository implements OrdersRepositoryInt {
     //get all orders by company id
     public List<OrdersEntity> findOrdersByCompanyId(int companyId) {
         String sql = """
-        SELECT o.*
-        FROM orders o
-        JOIN dealers d ON o.dealer_id = d.id
-        JOIN products p ON d.id = p.company_id
-        WHERE p.company_id = ?
+    SELECT 
+        o.id,
+        o.order_date,
+        o.delivery_date,
+        o.status,
+        o.client_id,
+        o.dealer_id,
+        o.total_price,
+        ST_AsText(o.estimated_route) AS estimated_route
+    FROM orders o
+    JOIN dealers d ON o.dealer_id = d.id
+    JOIN products p ON d.id = p.company_id
+    WHERE p.company_id = ?
     """;
         return jdbcTemplate.query(sql, new Object[]{companyId}, (rs, rowNum) ->
                 new OrdersEntity(
@@ -317,8 +332,9 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
     }
@@ -353,7 +369,7 @@ public class OrdersRepository implements OrdersRepositoryInt {
      */
     // Obtener la orden En proceso por ID del repartidor
     public OrdersEntity findActiveOrderByDealerId(int dealerId) {
-        String sql = "SELECT * FROM orders WHERE dealer_id = ? AND status = 'EN PROCESO'";
+        String sql = "SELECT id, order_date, delivery_date, status, client_id, dealer_id, total_price, ST_AsText(estimated_route) AS estimated_route FROM orders WHERE dealer_id = ? AND status = 'EN PROCESO'";
         List<OrdersEntity> orders = jdbcTemplate.query(sql, new Object[]{dealerId}, (rs, rowNum) ->
                 new OrdersEntity(
                         rs.getInt("id"),
@@ -361,13 +377,13 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getDate("delivery_date"),
                         rs.getString("status"),
                         rs.getInt("client_id"),
-                        rs.getInt("dealer_id"),
-                        rs.getDouble("total_price")
+                        rs.getObject("dealer_id") != null ? rs.getInt("dealer_id") : null,
+                        rs.getDouble("total_price"),
+                        rs.getString("estimated_route")
                 )
         );
         return orders.isEmpty() ? null : orders.get(0);
     }
-
 
     /**
      * Metodo para asignar un pedido a un repartidor.
@@ -459,6 +475,35 @@ public class OrdersRepository implements OrdersRepositoryInt {
                         rs.getString("client_address")
                 )
         );
+    }
+
+    public void updateEstimatedRoute(int orderId, String lineStringWKT) {
+        String sql = "UPDATE orders SET estimated_route = ST_GeomFromText(?, 4326) WHERE id = ?";
+        jdbcTemplate.update(sql, lineStringWKT, orderId);
+    }
+
+    public void updateEstimatedRouteFromPoints(int orderId, List<Map<String, Double>> points) {
+        // Construir el array de puntos para ST_MakeLine
+        StringBuilder pointsBuilder = new StringBuilder();
+        List<Object> args = new ArrayList<>();
+
+        for (Map<String, Double> point : points) {
+            if (pointsBuilder.length() > 0) {
+                pointsBuilder.append(", ");
+            }
+            pointsBuilder.append("ST_SetSRID(ST_MakePoint(?, ?), 4326)");
+            args.add(point.get("longitude"));
+            args.add(point.get("latitude"));
+        }
+
+        args.add(orderId);
+
+        String sql = String.format(
+                "UPDATE orders SET estimated_route = ST_MakeLine(ARRAY[%s]) WHERE id = ?",
+                pointsBuilder.toString()
+        );
+
+        jdbcTemplate.update(sql, args.toArray());
     }
 
 

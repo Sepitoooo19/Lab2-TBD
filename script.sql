@@ -82,6 +82,7 @@ CREATE TABLE orders (
                         client_id INT,
                         dealer_id INT,
                         total_price FLOAT
+                        estimated_route  GEOMETRY(LineString, 4326)
 );
 
 CREATE TABLE order_details (
@@ -124,6 +125,13 @@ CREATE TABLE dealers (
                          FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
+
+CREATE TABLE coverage_area (
+                                coverage_id SERIAL PRIMARY KEY,
+                                name VARCHAR(100) NOT NULL,
+                                coverageArea geometry(Polygon, 4326) NOT NULL
+);
+
 -- ========================
 -- RATINGS
 -- ========================
@@ -156,6 +164,17 @@ CREATE TABLE company_payment_methods (
                                          PRIMARY KEY (company_id, payment_method_id),
                                          FOREIGN KEY (company_id) REFERENCES companies(id),
                                          FOREIGN KEY (payment_method_id) REFERENCES payment_methods(id)
+);
+
+CREATE TABLE coverage_area_company
+(
+                                        company_id INT,
+                                        coverage_id INT,
+                                        PRIMARY KEY (company_id, coverage_id),
+                                        FOREIGN KEY (company_id) REFERENCES companies(id),
+                                        FOREIGN KEY (coverage_id) REFERENCES coverage_area(coverage_id)
+
+
 );
 
 -- Relación pedidos-productos
