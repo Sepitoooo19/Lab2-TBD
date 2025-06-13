@@ -19,6 +19,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 
 /**
@@ -169,18 +170,15 @@ public class OrdersController {
      */
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(
-            @RequestBody OrdersEntity order, // Cuerpo de la solicitud
-            @RequestParam List<Integer> productIds // Parámetro de consulta
-    ) {
-        System.out.println("Orden recibida: " + order);
-        System.out.println("IDs de productos recibidos: " + productIds);
+            @RequestBody OrdersEntity order,
+            @RequestParam List<Integer> productIds) {
 
         try {
-            ordersService.createOrderWithProducts(order, productIds);
+            // Asume que order.getEstimatedRoute() contiene el WKT
+            ordersService.createOrderWithProducts(order, productIds, null);
             return ResponseEntity.ok("Orden creada exitosamente");
         } catch (Exception e) {
-            e.printStackTrace(); // Imprime el error completo en los logs
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al crear la orden: " + e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
@@ -486,5 +484,25 @@ public class OrdersController {
         List<OrdersEntity> failedOrders = jdbcTemplate.query(query, new BeanPropertyRowMapper<>(OrdersEntity.class), clientId);
 
         return ResponseEntity.ok(failedOrders);
+    }
+
+    @PutMapping("/orders/{id}/route/wkt")
+    public ResponseEntity<Void> updateRouteWithWKT(
+            @PathVariable int id,
+            @RequestBody Map<String, String> request) {
+
+        String wkt = request.get("wkt");
+        ordersService.updateOrderRouteWithWKT(id, wkt);
+        return ResponseEntity.ok().build();
+    }
+
+    // Ejemplo con puntos
+    @PutMapping("/orders/{id}/route/points")
+    public ResponseEntity<Void> updateRouteWithPoints(
+            @PathVariable int id,
+            @RequestBody List<Map<String, Double>> points) {
+
+        ordersService.updateOrderRouteWithPoints(id, points);
+        return ResponseEntity.ok().build();
     }
 }

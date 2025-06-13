@@ -16,7 +16,7 @@ import bdavanzadas.lab1.dtos.OrderTotalProductsDTO;
 
 import java.util.Date;
 import java.util.List;
-
+import java.util.Map;
 
 
 /**
@@ -189,27 +189,41 @@ public class OrdersService {
      * - Array de IDs de productos
      * - ID del dealer (opcional)
      */
-    public void createOrderWithProducts(OrdersEntity order, List<Integer> productIds) {
-
+    @Transactional
+    public void createOrderWithProducts(OrdersEntity order, List<Integer> productIds,
+                                        List<Map<String, Double>> routePoints) {
+        // 1. Obtener clientId del usuario autenticado
         Long userId = userService.getAuthenticatedUserId();
-
         String sql = "SELECT id FROM clients WHERE user_id = ?";
         Integer clientId = jdbcTemplate.queryForObject(sql, Integer.class, userId);
 
         if (clientId == null) {
-            throw new IllegalArgumentException("No se encontró un cliente asociado al usuario con ID " + userId);
+            throw new IllegalArgumentException("No se encontró cliente asociado al usuario ID: " + userId);
         }
-
         order.setClientId(clientId);
 
+        // 2. Registrar el pedido con los productos (procedimiento almacenado)
         sql = "CALL register_order_with_products(?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 order.getOrderDate(),
                 order.getStatus(),
                 order.getClientId(),
                 productIds.toArray(new Integer[0]),
-                order.getDealerId() // puede ser null
+                order.getDealerId()
         );
+
+        // 3. Obtener el ID del pedido recién creado
+        Integer orderId = getLastInsertedOrderId();
+
+        // 4. Si se proporcionaron puntos para la ruta, calcular y guardar
+        if (routePoints != null && !routePoints.isEmpty()) {
+            updateOrderRouteWithPoints(orderId, routePoints);
+        }
+
+        // Opcional: Si el pedido viene con WKT directamente
+        if (order.getEstimatedRoute() != null && !order.getEstimatedRoute().isEmpty()) {
+            updateOrderRouteWithWKT(orderId, order.getEstimatedRoute());
+        }
     }
 
 
@@ -463,5 +477,31 @@ public class OrdersService {
         // Llamar al repositorio para obtener la orden activa
         return ordersRepository.findActiveOrderNameAddresDTOByDealerId(dealerId);
     }
+
+    @Transactional
+    public void updateOrderRouteWithWKT(int orderId, String lineStringWKT) {
+        // Validación básica del WKT
+        if (!lineStringWKT.toUpperCase().startsWith("LINESTRING(")) {
+            throw new IllegalArgumentException("Formato WKT inválido. Debe comenzar con 'LINESTRING('");
+        }
+        ordersRepository.updateEstimatedRoute(orderId, lineStringWKT);
+    }
+
+    @Transactional
+    public void updateOrderRouteWithPoints(int orderId, List<Map<String, Double>> points) {
+        // Validación básica
+        if (points == null || points.size() < 2) {
+            throw new IllegalArgumentException("Se necesitan al menos 2 puntos para crear una ruta");
+        }
+
+        for (Map<String, Double> point : points) {
+            if (!point.containsKey("longitude") || !point.containsKey("latitude")) {
+                throw new IllegalArgumentException("Cada punto debe tener 'longitude' y 'latitude'");
+            }
+        }
+
+        ordersRepository.updateEstimatedRouteFromPoints(orderId, points);
+    }
+
 
 }

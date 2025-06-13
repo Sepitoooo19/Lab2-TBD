@@ -24,4 +24,5 @@ public class OrdersEntity {
     private int clientId;
     private Integer dealerId;
     private double totalPrice;
+    private String estimatedRoute;
 }
