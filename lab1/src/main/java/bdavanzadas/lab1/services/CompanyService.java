@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.services;
 
+import bdavanzadas.lab1.dtos.NearestDeliveryPointDTO;
 import bdavanzadas.lab1.entities.CompanyEntity;
 import bdavanzadas.lab1.repositories.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,5 +74,11 @@ public class CompanyService {
             );
         }
     }
+
+    public List<NearestDeliveryPointDTO> getTop5NearestDeliveryPoints(int companyId) {
+        return companyRepository.findNearestDeliveryPoints(companyId, 5);
+    }
+
+
 
 }

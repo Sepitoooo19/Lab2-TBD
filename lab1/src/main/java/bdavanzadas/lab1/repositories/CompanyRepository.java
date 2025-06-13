@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.repositories;
 
+import bdavanzadas.lab1.dtos.NearestDeliveryPointDTO;
 import bdavanzadas.lab1.entities.CompanyEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -203,5 +204,36 @@ public class CompanyRepository implements CompanyRepositoryInt {
                 total_food_delivered DESC;
         """;
         return jdbcTemplate.queryForList(sql);
+    }
+
+
+    public List<NearestDeliveryPointDTO> findNearestDeliveryPoints(int companyId, int limit) {
+        String sql = """
+            SELECT 
+                c.id AS client_id,
+                c.name AS client_name,
+                c.address AS client_address,
+                ST_AsText(c.ubication) AS client_location,
+                comp.name AS company_name,
+                ST_Distance(c.ubication, comp.ubication) AS distance_meters
+            FROM 
+                clients c,
+                companies comp
+            WHERE 
+                comp.id = ?
+            ORDER BY 
+                distance_meters ASC
+            LIMIT ?
+            """;
+
+        return jdbcTemplate.query(sql, new Object[]{companyId, limit}, (rs, rowNum) ->
+                new NearestDeliveryPointDTO(
+                        rs.getInt("client_id"),
+                        rs.getString("client_name"),
+                        rs.getString("client_address"),
+                        rs.getString("client_location"),
+                        rs.getString("company_name"),
+                        rs.getDouble("distance_meters")
+                ));
     }
 }

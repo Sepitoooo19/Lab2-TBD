@@ -216,3 +216,42 @@ INSERT INTO ratings (rating,comment,date,client_id,dealer_id,order_id) VALUES
                                                                            (2,'Llegó tarde'                               ,'2025-04-14',(SELECT id FROM clients WHERE name='Diego Rodríguez'),(SELECT id FROM dealers WHERE name='Ana Morales'  ),14),
                                                                            (4,'Todo ok'                                   ,'2025-04-16',(SELECT id FROM clients WHERE name='Felipe Torres'  ),(SELECT id FROM dealers WHERE name='Pedro López'  ),16),
                                                                            (5,'Rápido y amable'                           ,'2025-04-20',(SELECT id FROM clients WHERE name='Juan Castillo'  ),(SELECT id FROM dealers WHERE name='Luis Sánchez' ),20);
+
+
+/* =======================================================
+   9. ZONAS DE COBERTURA (5)
+   =======================================================*/
+INSERT INTO coverage_area (name, coverageArea) VALUES
+                                                   -- Zona Centro de Santiago (para FreshBite y GreenFarm)
+                                                   ('Zona Centro Santiago', ST_GeomFromText('POLYGON((-70.6600 -33.4600, -70.6600 -33.4200, -70.6000 -33.4200, -70.6000 -33.4600, -70.6600 -33.4600))')),
+
+                                                   -- Zona Oriente de Santiago (para PanDelight)
+                                                   ('Zona Oriente Santiago', ST_GeomFromText('POLYGON((-70.6000 -33.4000, -70.6000 -33.4500, -70.5000 -33.4500, -70.5000 -33.4000, -70.6000 -33.4000))')),
+
+                                                   -- Zona Valparaíso (para SaborAndes y OceanCatch)
+                                                   ('Zona Central Valparaíso', ST_GeomFromText('POLYGON((-71.6500 -33.0600, -71.6500 -33.0200, -71.6000 -33.0200, -71.6000 -33.0600, -71.6500 -33.0600))')),
+
+                                                   -- Zona Norte Santiago (para GreenFarm)
+                                                   ('Zona Norte Santiago', ST_GeomFromText('POLYGON((-70.7000 -33.3800, -70.7000 -33.4200, -70.6500 -33.4200, -70.6500 -33.3800, -70.7000 -33.3800))')),
+
+                                                   -- Zona Sur Santiago (para FreshBite)
+                                                   ('Zona Sur Santiago', ST_GeomFromText('POLYGON((-70.7000 -33.5000, -70.7000 -33.5500, -70.6500 -33.5500, -70.6500 -33.5000, -70.7000 -33.5000))'));
+
+/* =======================================================
+   10. RELACIÓN EMPRESAS-ZONAS DE COBERTURA
+   =======================================================*/
+INSERT INTO coverage_area_company (company_id, coverage_id) VALUES
+                                                                -- FreshBite SpA (Productora) cubre Zona Centro y Sur Santiago
+                                                                (1, 1), (1, 5),
+
+                                                                -- GreenFarm Ltda. (Agrícola) cubre Zona Centro y Norte Santiago
+                                                                (2, 1), (2, 4),
+
+                                                                -- PanDelight S.A. (Panadería) cubre Zona Oriente Santiago
+                                                                (3, 2),
+
+                                                                -- SaborAndes SpA (Alimentos) cubre Zona Valparaíso
+                                                                (4, 3),
+
+                                                                -- OceanCatch Ltda. (Pescados) cubre Zona Valparaíso
+                                                                (5, 3);

@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.Controllers;
 
+import bdavanzadas.lab1.dtos.NearestDeliveryPointDTO;
 import bdavanzadas.lab1.entities.CompanyEntity;
 import bdavanzadas.lab1.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -133,4 +134,16 @@ public class CompanyController {
         List<Map<String, Object>> companies = service.getCompaniesByDeliveredFoodVolume();
         return ResponseEntity.ok(companies);
     }
+
+    @GetMapping("/{companyId}/nearest-delivery-points")
+    public ResponseEntity<List<NearestDeliveryPointDTO>> getNearestDeliveryPoints(
+            @PathVariable int companyId,
+            @RequestParam(defaultValue = "5") int limit) {
+
+        return ResponseEntity.ok(
+                service.getTop5NearestDeliveryPoints(companyId)
+        );
+    }
+
+
 }
