@@ -14,6 +14,9 @@ DROP TABLE IF EXISTS clients CASCADE;
 DROP TABLE IF EXISTS payment_methods CASCADE;
 DROP TABLE IF EXISTS companies CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS coverage_area CASCADE;
+DROP TABLE IF EXISTS coverage_area_company CASCADE;
+
 
 -- Eliminar procedimientos almacenados
 DROP PROCEDURE IF EXISTS register_order_with_products(TIMESTAMP, VARCHAR, INT, INT[], INT);
@@ -81,7 +84,7 @@ CREATE TABLE orders (
                         status VARCHAR(50),
                         client_id INT,
                         dealer_id INT,
-                        total_price FLOAT
+                        total_price FLOAT,
                         estimated_route  GEOMETRY(LineString, 4326)
 );
 
@@ -127,9 +130,9 @@ CREATE TABLE dealers (
 
 
 CREATE TABLE coverage_area (
-                                coverage_id SERIAL PRIMARY KEY,
-                                name VARCHAR(100) NOT NULL,
-                                coverageArea geometry(Polygon, 4326) NOT NULL
+                               coverage_id SERIAL PRIMARY KEY,
+                               name VARCHAR(100) NOT NULL,
+                               coverageArea geometry(Polygon, 4326) NOT NULL
 );
 
 -- ========================
@@ -168,11 +171,11 @@ CREATE TABLE company_payment_methods (
 
 CREATE TABLE coverage_area_company
 (
-                                        company_id INT,
-                                        coverage_id INT,
-                                        PRIMARY KEY (company_id, coverage_id),
-                                        FOREIGN KEY (company_id) REFERENCES companies(id),
-                                        FOREIGN KEY (coverage_id) REFERENCES coverage_area(coverage_id)
+    company_id INT,
+    coverage_id INT,
+    PRIMARY KEY (company_id, coverage_id),
+    FOREIGN KEY (company_id) REFERENCES companies(id),
+    FOREIGN KEY (coverage_id) REFERENCES coverage_area(coverage_id)
 
 
 );

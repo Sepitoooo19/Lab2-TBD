@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.services;
 
+import bdavanzadas.lab1.dtos.CoverageCheckDTO;
 import bdavanzadas.lab1.entities.CoverageAreaEntity;
 import bdavanzadas.lab1.repositories.CoverageAreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,5 +32,19 @@ public class CoverageAreaService {
 
     public void deleteCoverageArea(int id) {
         coverageAreaRepository.delete(id);
+    }
+
+    /**
+     * Verificación simple de cobertura
+     */
+    public boolean checkClientCoverage(int clientId, int companyId) {
+        return coverageAreaRepository.isClientInCoverageArea(clientId, companyId);
+    }
+
+    /**
+     * Verificación detallada con información adicional
+     */
+    public CoverageCheckDTO getClientCoverageDetails(int clientId, int companyId) {
+        return coverageAreaRepository.getClientCoverageDetails(clientId, companyId);
     }
 }
