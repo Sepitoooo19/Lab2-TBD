@@ -81,7 +81,7 @@ CREATE TABLE orders (
                         status VARCHAR(50),
                         client_id INT,
                         dealer_id INT,
-                        total_price FLOAT
+                        total_price FLOAT,
                         estimated_route  GEOMETRY(LineString, 4326)
 );
 
