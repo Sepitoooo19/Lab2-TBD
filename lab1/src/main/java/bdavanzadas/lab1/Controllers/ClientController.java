@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/clients")
@@ -81,5 +82,24 @@ public class ClientController {
         return clientName != null
                 ? new ResponseEntity<>(clientName, HttpStatus.OK)
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
+    /**
+     * Obtiene los datos del cliente autenticado
+     * @return Datos del cliente o mensaje de error
+     */
+    @GetMapping("/me")
+    public ResponseEntity<?> getAuthenticatedClientProfile() {
+        try {
+            Map<String, Object> clientData = clientService.getAuthenticatedClientData();
+            return ResponseEntity.ok(clientData);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("No existe un cliente asociado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Cliente no encontrado", "details", e.getMessage()));
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error del servidor", "details", e.getMessage()));
+        }
     }
 }

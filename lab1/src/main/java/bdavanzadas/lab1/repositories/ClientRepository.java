@@ -2,6 +2,7 @@ package bdavanzadas.lab1.repositories;
 
 import bdavanzadas.lab1.entities.ClientEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -94,6 +95,27 @@ public class ClientRepository implements ClientRepositoryInt {
             client.setUbication(rs.getString("ubication")); // Asigna el WKT directamente
             return client;
         });
+    }
+
+    public ClientEntity findByUserId(int userId) {
+        String sql = "SELECT id, name, rut, email, phone, address, user_id, " +
+                "ST_AsText(ubication) as ubication FROM clients WHERE user_id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{userId}, (rs, rowNum) -> {
+                ClientEntity client = new ClientEntity();
+                client.setId(rs.getInt("id"));
+                client.setName(rs.getString("name"));
+                client.setRut(rs.getString("rut"));
+                client.setEmail(rs.getString("email"));
+                client.setPhone(rs.getString("phone"));
+                client.setAddress(rs.getString("address"));
+                client.setUserId(rs.getInt("user_id"));
+                client.setUbication(rs.getString("ubication"));
+                return client;
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return null; // Devuelve null si no se encuentra el cliente
+        }
     }
 
     /**
