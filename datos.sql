@@ -255,3 +255,32 @@ INSERT INTO coverage_area_company (company_id, coverage_id) VALUES
 
                                                                 -- OceanCatch Ltda. (Pescados) cubre Zona Valparaíso
                                                                 (5, 3);
+
+
+
+-- Actualizar ubicaciones de empresas (usando coordenadas reales aproximadas)
+UPDATE companies SET ubication = ST_SetSRID(ST_MakePoint(-70.64827, -33.43727), 4326) WHERE id = 1; -- FreshBite SpA (Providencia)
+UPDATE companies SET ubication = ST_SetSRID(ST_MakePoint(-70.92792, -33.66819), 4326) WHERE id = 2; -- GreenFarm Ltda. (Talagante)
+UPDATE companies SET ubication = ST_SetSRID(ST_MakePoint(-70.57269, -33.41554), 4326) WHERE id = 3; -- PanDelight S.A. (Las Condes)
+UPDATE companies SET ubication = ST_SetSRID(ST_MakePoint(-71.62000, -33.04500), 4326) WHERE id = 4; -- SaborAndes SpA (Valparaíso)
+UPDATE companies SET ubication = ST_SetSRID(ST_MakePoint(-71.63000, -33.04000), 4326) WHERE id = 5; -- OceanCatch Ltda. (Valparaíso)
+
+-- Actualizar ubicaciones de clientes (distribuidos alrededor de las empresas)
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.65000, -33.43800), 4326) WHERE id = 1;  -- 200m de FreshBite
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.64600, -33.43600), 4326) WHERE id = 2;  -- 300m de FreshBite
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.65200, -33.44000), 4326) WHERE id = 3;  -- 400m de FreshBite
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.65500, -33.43500), 4326) WHERE id = 4;  -- 700m de FreshBite
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.64000, -33.43000), 4326) WHERE id = 5;  -- 1km de FreshBite
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.57000, -33.41600), 4326) WHERE id = 6;  -- Cerca de PanDelight
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-70.57500, -33.42000), 4326) WHERE id = 7;  -- Cerca de PanDelight
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-71.62500, -33.04600), 4326) WHERE id = 8;  -- Cerca de SaborAndes
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-71.62200, -33.04800), 4326) WHERE id = 9;  -- Cerca de SaborAndes
+UPDATE clients SET ubication = ST_SetSRID(ST_MakePoint(-71.61800, -33.04200), 4326) WHERE id = 10; -- Cerca de SaborAndes
+
+-- Actualizar ubicaciones de repartidores (distribuidos aleatoriamente)
+UPDATE dealers SET ubication = ST_SetSRID(ST_MakePoint(-70.64700, -33.43900), 4326) WHERE id = 1;
+UPDATE dealers SET ubication = ST_SetSRID(ST_MakePoint(-70.65500, -33.44500), 4326) WHERE id = 2;
+UPDATE dealers SET ubication = ST_SetSRID(ST_MakePoint(-70.57000, -33.41500), 4326) WHERE id = 3;
+UPDATE dealers SET ubication = ST_SetSRID(ST_MakePoint(-71.62400, -33.04400), 4326) WHERE id = 4;
+UPDATE dealers SET ubication = ST_SetSRID(ST_MakePoint(-71.61900, -33.04700), 4326) WHERE id = 5;
+

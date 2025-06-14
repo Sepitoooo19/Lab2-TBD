@@ -76,6 +76,11 @@ public class CompanyService {
     }
 
     public List<NearestDeliveryPointDTO> getTop5NearestDeliveryPoints(int companyId) {
+        // Validación básica del ID
+        if (companyId <= 0) {
+            throw new IllegalArgumentException("El ID de compañía debe ser positivo");
+        }
+
         return companyRepository.findNearestDeliveryPoints(companyId, 5);
     }
 

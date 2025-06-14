@@ -49,9 +49,6 @@ public class CoverageAreaController {
     }
 
 
-    /**
-     * Verificación simple
-     */
     @GetMapping("/check/{companyId}/{clientId}")
     public ResponseEntity<Map<String, Boolean>> checkCoverage(
             @PathVariable int companyId,
@@ -62,15 +59,28 @@ public class CoverageAreaController {
     }
 
     /**
-     * Verificación detallada
+     * Verificación detallada con manejo de errores básico
      */
     @GetMapping("/details/{companyId}/{clientId}")
-    public ResponseEntity<CoverageCheckDTO> getCoverageDetails(
+    public ResponseEntity<?> getCoverageDetails(
             @PathVariable int companyId,
             @PathVariable int clientId) {
 
-        return ResponseEntity.ok(
-                coverageAreaService.getClientCoverageDetails(clientId, companyId)
-        );
+        // Validación básica de parámetros
+        if (companyId <= 0 || clientId <= 0) {
+            return ResponseEntity.badRequest().body("Los IDs deben ser mayores a cero");
+        }
+
+        try {
+            CoverageCheckDTO details = coverageAreaService.getClientCoverageDetails(clientId, companyId);
+
+            if (details == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            return ResponseEntity.ok(details);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al obtener detalles de cobertura");
+        }
     }
 }
