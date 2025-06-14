@@ -95,5 +95,21 @@ public class CompanyService {
         return companyRepository.findFarthestDeliveryPointForEachCompany();
     }
 
+    /**
+     * Obtiene el ID de una compañía por su nombre
+     * @param name Nombre de la compañía a buscar
+     * @return ID de la compañía
+     */
+    public Integer getCompanyIdByName(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+
+        Integer id = companyRepository.findIdByName(name);
+
+
+        return id;
+    }
+
 
 }

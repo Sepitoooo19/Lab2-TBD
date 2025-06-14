@@ -3,6 +3,7 @@ package bdavanzadas.lab1.repositories;
 import bdavanzadas.lab1.dtos.NearestDeliveryPointDTO;
 import bdavanzadas.lab1.entities.CompanyEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -271,5 +272,20 @@ public class CompanyRepository implements CompanyRepositoryInt {
             rn = 1;
     """;
         return jdbcTemplate.queryForList(sql);
+    }
+
+    /**
+     * Método para obtener el ID de una compañía por su nombre
+     * @param name Nombre de la compañía a buscar
+     * @return ID de la compañía o null si no se encuentra
+     */
+    public Integer findIdByName(String name) {
+        String sql = "SELECT id FROM companies WHERE name = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, Integer.class, name);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
     }
 }

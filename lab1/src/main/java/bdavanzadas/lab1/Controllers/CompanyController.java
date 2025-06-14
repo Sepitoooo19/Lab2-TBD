@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -170,6 +171,24 @@ public class CompanyController {
             return ResponseEntity.ok(report);
         } catch (Exception e) {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    /**
+     * Endpoint para obtener el ID de una compañía por su nombre
+     * @param name Nombre de la compañía a buscar
+     * @return ResponseEntity con el ID o código de error
+     */
+    @GetMapping("/by-name/{name}")
+    public ResponseEntity<?> getCompanyIdByName(@PathVariable String name) {
+        try {
+            Integer companyId = service.getCompanyIdByName(name);
+            return ResponseEntity.ok(Collections.singletonMap("id", companyId));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al buscar la compañía");
         }
     }
 

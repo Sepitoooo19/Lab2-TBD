@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.services;
 
+import bdavanzadas.lab1.entities.ClientEntity;
 import bdavanzadas.lab1.repositories.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -218,6 +219,38 @@ public class DealerService {
             throw new IllegalArgumentException("Usuario no autenticado");
         }
         return dealerRepository.getTotalDistanceByAuthenticatedDealer(userId);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> getAuthenticatedCompleteDealerData() {
+        try {
+            Long userIdLong = userService.getAuthenticatedUserId();
+            if (userIdLong == null) {
+                throw new RuntimeException("Usuario no autenticado");
+            }
+
+            int userId = userIdLong.intValue();
+            DealerEntity dealer = dealerRepository.findByUserId(userId);
+
+            if (dealer == null) {
+                throw new RuntimeException("No existe un cliente asociado a este usuario");
+            }
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("id", dealer.getId());
+            data.put("name", dealer.getName());
+            data.put("rut", dealer.getRut());
+            data.put("email", dealer.getEmail());
+            data.put("phone", dealer.getPhone());
+            data.put("vehicle", dealer.getVehicle());
+            data.put("plate", dealer.getPlate());
+            data.put("ubication", dealer.getUbication());
+
+            return data;
+        } catch (Exception e) {
+            throw new RuntimeException("Error al obtener datos del cliente: " + e.getMessage());
+        }
     }
 
 
