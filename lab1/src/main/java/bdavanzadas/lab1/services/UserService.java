@@ -89,7 +89,7 @@ public class UserService {
      * Si el nombre de usuario ya está en uso, se lanza una excepción.
      * Si el ID del usuario no se genera correctamente, se lanza una excepción.
      */
-    public void registerClient(String username, String password, String name, String rut, String email, String phone, String address) {
+    public void registerClient(String username, String password, String name, String rut, String email, String phone, String address, String ubication) {
         if (userRepository.findByUsername(username) != null) {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso: " + username);
         }
@@ -112,7 +112,7 @@ public class UserService {
         client.setPhone(phone);
         client.setAddress(address);
         client.setUserId(user.getId());
-        client.setUbication("POINT(0 0)"); // Asignar una ubicación por defecto, puede ser modificada posteriormente
+        client.setUbication(ubication != null ? ubication : "POINT(0 0)");  // Usar el parámetro ubication, no client.getUbication()
         clientRepository.save(client);
     }
 
@@ -132,7 +132,7 @@ public class UserService {
      * Si el nombre de usuario ya está en uso, se lanza una excepción.
      * Si el ID del usuario no se genera correctamente, se lanza una excepción.
      */
-    public void registerDealer(String username, String password, String name, String rut, String email, String phone, String vehicle, String plate) {
+    public void registerDealer(String username, String password, String name, String rut, String email, String phone, String vehicle, String plate, String ubication) {
         if (userRepository.findByUsername(username) != null) {
             throw new IllegalArgumentException("El nombre de usuario ya está en uso: " + username);
         }
@@ -156,7 +156,7 @@ public class UserService {
         dealer.setVehicle(vehicle);
         dealer.setPlate(plate);
         dealer.setUserId(user.getId());
-        dealer.setUbication("POINT(0 0)");
+        dealer.setUbication(ubication != null ? ubication : "POINT(0 0)"); // Asignar una ubicación por defecto, puede ser modificada posteriormente
 
         dealerRepository.save(dealer);
     }

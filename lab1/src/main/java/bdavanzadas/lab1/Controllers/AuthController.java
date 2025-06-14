@@ -81,7 +81,7 @@ public class AuthController {
                 String address = (String) body.get("address");
                 String ubication = (String) body.get("ubication");
 
-                userService.registerClient(username, password, name, rut, email, phone, address);
+                userService.registerClient(username, password, name, rut, email, phone, address, ubication);
             } else if ("DEALER".equals(role)) {
                 String name = (String) body.get("name");
                 String rut = (String) body.get("rut");
@@ -91,7 +91,7 @@ public class AuthController {
                 String plate = (String) body.get("plate");
                 String ubication = (String) body.get("ubication");
 
-                userService.registerDealer(username, password, name, rut, email, phone, vehicle, plate);
+                userService.registerDealer(username, password, name, rut, email, phone, vehicle, plate, ubication);
             }
 
             return ResponseEntity.ok(Map.of("success", true, "message", "Usuario registrado exitosamente"));
