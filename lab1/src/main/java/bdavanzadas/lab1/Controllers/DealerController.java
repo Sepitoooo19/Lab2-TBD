@@ -205,5 +205,22 @@ public class DealerController {
         }
     }
 
+    /**
+     * Calcula la distancia total recorrida por un dealer en el último mes.
+     *
+     * @return Distancia total recorrida por el dealer autenticado.
+     */
+    @GetMapping("/distance-traveled")
+    public ResponseEntity<Double> getTotalDistanceTraveledByAuthenticatedDealer() {
+        try {
+            Double distance = dealerService.getTotalDistanceByAuthenticatedDealer();
+            return ResponseEntity.ok(distance);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null); // Error de validación
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null); // Error inesperado
+        }
+    }
+
 
 }

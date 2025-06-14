@@ -323,6 +323,35 @@ public class DealerRepository  implements DealerRepositoryInt {
         }
     }
 
+    // rf 3: calcular la distancia total recorrida por un dealer en el ultimo mes
+    public Double getTotalDistanceByAuthenticatedDealer(Long userId){
+        String sql = """
+            SELECT
+                SUM(
+                    ST_Length(o.estimated_route::geography)
+                ) AS total_distance
+            FROM
+                orders o
+            JOIN
+                dealers d ON o.dealer_id = d.id
+            WHERE
+                d.user_id = ?
+                AND o.status = 'ENTREGADO'
+                AND o.delivery_date >= date_trunc('month', CURRENT_DATE)
+                AND o.delivery_date < date_trunc('month', CURRENT_DATE) + interval '1 month'
+                AND o.estimated_route IS NOT NULL
+            """;
+
+        try {
+            // Usamos queryForObject porque esperamos un único valor (la suma total)
+            Double totalDistance = jdbcTemplate.queryForObject(sql, Double.class, userId);
+            return totalDistance == null ? 0.0 : totalDistance;
+        } catch (EmptyResultDataAccessException e) {
+            // Esto ocurre si la consulta no devuelve ninguna fila
+            return 0.0;
+        }
+    }
+
 
 
 

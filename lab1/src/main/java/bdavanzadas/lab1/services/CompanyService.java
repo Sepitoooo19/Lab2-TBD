@@ -84,6 +84,16 @@ public class CompanyService {
         return companyRepository.findNearestDeliveryPoints(companyId, 5);
     }
 
+    // rf4-identificar el punto de entrega más lejano desde cada compañía
+    /**
+     * Genera un reporte que muestra el punto de entrega más lejano para cada empresa
+     * basado en pedidos urgentes o pendientes.
+     * @return Una lista con la información del reporte.
+     */
+    @Transactional(readOnly = true)
+    public List<Map<String, Object>> getFarthestDeliveryPointReport() {
+        return companyRepository.findFarthestDeliveryPointForEachCompany();
+    }
 
 
 }

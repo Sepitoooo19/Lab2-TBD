@@ -205,6 +205,21 @@ public class DealerService {
         }
     }
 
+    // rf 3: calcular la distancia total recorrida por un dealer en el ultimo mes
+    /**
+     * Calcula la distancia total recorrida por el dealer autenticado en el último mes.
+     * @return La distancia total recorrida por el dealer autenticado.
+     */
+    @Transactional(readOnly = true)
+    public double getTotalDistanceByAuthenticatedDealer() {
+        // Obtener el ID del usuario autenticado
+        Long userId = userService.getAuthenticatedUserId();
+        if (userId == null) {
+            throw new IllegalArgumentException("Usuario no autenticado");
+        }
+        return dealerRepository.getTotalDistanceByAuthenticatedDealer(userId);
+    }
+
 
 }
 

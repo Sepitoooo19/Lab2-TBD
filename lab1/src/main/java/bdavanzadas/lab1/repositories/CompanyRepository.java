@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -238,5 +239,37 @@ public class CompanyRepository implements CompanyRepositoryInt {
                         rs.getString("company_name"),
                         rs.getDouble("distance_meters")
                 ), companyId, limit);
+    }
+
+
+    public List<Map<String, Object>> findFarthestDeliveryPointForEachCompany() {
+        String sql = """
+        WITH RankedDeliveries AS (
+            SELECT
+                c.name AS company_name,
+                ST_EndPoint(o.estimated_route) AS delivery_point,
+                ROW_NUMBER() OVER(
+                    PARTITION BY c.id
+                    ORDER BY ST_Distance(c.ubication::geography, ST_EndPoint(o.estimated_route)::geography) DESC
+                ) as rn
+            FROM
+                companies c
+            JOIN products p ON c.id = p.company_id
+            JOIN order_products op ON p.id = op.product_id
+            JOIN orders o ON op.order_id = o.id
+            WHERE
+                o.status IN ('URGENTE', 'PENDIENTE')
+                AND o.estimated_route IS NOT NULL
+                AND c.ubication IS NOT NULL
+        )
+        SELECT
+            company_name,
+            ST_AsText(delivery_point) AS farthest_delivery_point
+        FROM
+            RankedDeliveries
+        WHERE
+            rn = 1;
+    """;
+        return jdbcTemplate.queryForList(sql);
     }
 }

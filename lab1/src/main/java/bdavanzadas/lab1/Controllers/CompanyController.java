@@ -154,5 +154,23 @@ public class CompanyController {
         }
     }
 
+    /**
+     *
+     * Endpoint para obtener el punto de entrega más lejano desde cada compañía.
+     * Este endpoint devuelve una lista de puntos de entrega más lejanos desde cada compañía.
+     *
+     * */
+    @GetMapping("/reports/farthest-deliveries")
+    public ResponseEntity<List<Map<String, Object>>> getFarthestDeliveriesReport() {
+        try {
+            List<Map<String, Object>> report = service.getFarthestDeliveryPointReport();
+            if (report.isEmpty()) {
+                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            }
+            return ResponseEntity.ok(report);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
