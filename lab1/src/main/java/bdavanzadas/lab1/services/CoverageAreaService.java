@@ -4,7 +4,10 @@ import bdavanzadas.lab1.dtos.CoverageCheckDTO;
 import bdavanzadas.lab1.entities.CoverageAreaEntity;
 import bdavanzadas.lab1.repositories.CoverageAreaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -34,17 +37,28 @@ public class CoverageAreaService {
         coverageAreaRepository.delete(id);
     }
 
+
     /**
-     * Verificación simple de cobertura
+     * Verificación básica de cobertura sin validaciones
+     * @param clientId ID del cliente
+     * @param companyId ID de la empresa
+     * @return resultado directo del repository
      */
     public boolean checkClientCoverage(int clientId, int companyId) {
         return coverageAreaRepository.isClientInCoverageArea(clientId, companyId);
     }
 
     /**
-     * Verificación detallada con información adicional
+     * Verificación detallada
+     * @return DTO o null si hay algún problema
      */
+    @Transactional(readOnly = true)
     public CoverageCheckDTO getClientCoverageDetails(int clientId, int companyId) {
+        if (clientId <= 0 || companyId <= 0) {
+            return null;
+        }
+
+
         return coverageAreaRepository.getClientCoverageDetails(clientId, companyId);
     }
 }

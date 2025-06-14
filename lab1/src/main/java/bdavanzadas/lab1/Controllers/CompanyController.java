@@ -4,6 +4,7 @@ import bdavanzadas.lab1.dtos.NearestDeliveryPointDTO;
 import bdavanzadas.lab1.entities.CompanyEntity;
 import bdavanzadas.lab1.services.CompanyService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -135,14 +136,22 @@ public class CompanyController {
         return ResponseEntity.ok(companies);
     }
 
-    @GetMapping("/{companyId}/nearest-delivery-points")
-    public ResponseEntity<List<NearestDeliveryPointDTO>> getNearestDeliveryPoints(
-            @PathVariable int companyId,
-            @RequestParam(defaultValue = "5") int limit) {
+    @GetMapping("/nearest/{companyId}")
+    public ResponseEntity<?> getNearestDeliveryPoints(@PathVariable int companyId) {
+        try {
+            List<NearestDeliveryPointDTO> result = service.getTop5NearestDeliveryPoints(companyId);
 
-        return ResponseEntity.ok(
-                service.getTop5NearestDeliveryPoints(companyId)
-        );
+            if (result == null || result.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("No se encontraron puntos de entrega cercanos");
+            }
+
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al procesar la solicitud");
+        }
     }
 
 

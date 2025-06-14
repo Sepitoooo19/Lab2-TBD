@@ -215,18 +215,21 @@ public class CompanyRepository implements CompanyRepositoryInt {
                 c.address AS client_address,
                 ST_AsText(c.ubication) AS client_location,
                 comp.name AS company_name,
-                ST_Distance(c.ubication, comp.ubication) AS distance_meters
+                ST_Distance(c.ubication::geography, comp.ubication::geography) AS distance_meters
             FROM 
-                clients c,
+                clients c
+            CROSS JOIN 
                 companies comp
             WHERE 
-                comp.id = ?
+                comp.id = ? 
+                AND c.ubication IS NOT NULL
+                AND comp.ubication IS NOT NULL
             ORDER BY 
                 distance_meters ASC
             LIMIT ?
             """;
 
-        return jdbcTemplate.query(sql, new Object[]{companyId, limit}, (rs, rowNum) ->
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
                 new NearestDeliveryPointDTO(
                         rs.getInt("client_id"),
                         rs.getString("client_name"),
@@ -234,6 +237,6 @@ public class CompanyRepository implements CompanyRepositoryInt {
                         rs.getString("client_location"),
                         rs.getString("company_name"),
                         rs.getDouble("distance_meters")
-                ));
+                ), companyId, limit);
     }
 }
