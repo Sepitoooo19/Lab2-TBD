@@ -30,9 +30,9 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Metodo para guardar un dealer en la base de datos.
+     *
      * @param "dealer" El dealer a guardar.
      * @return void
-     *
      */
     public void save(DealerEntity dealer) {
         String sql = "INSERT INTO dealers (user_id, name, rut, email, phone, vehicle, plate, ubication) VALUES (?, ?, ?, ?, ?, ?, ?, ST_GeomFromText(?, 4326))";
@@ -42,20 +42,29 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Metodo para actualizar un dealer en la base de datos.
+     *
      * @param "dealer" El dealer a actualizar.
      * @return void
-     *
      */
     public void update(DealerEntity dealer) {
         String sql = "UPDATE dealers SET name = ?, rut = ?, email = ?, phone = ?, vehicle = ?, plate = ?, ubication = ST_GeomFromText(?, 4326) WHERE id = ?";
-        jdbcTemplate.update(sql, dealer.getName(), dealer.getRut(), dealer.getEmail(), dealer.getPhone(), dealer.getVehicle(), dealer.getPlate(), dealer.getUbication(), dealer.getId());
+
+        jdbcTemplate.update(sql,
+                dealer.getName(),
+                dealer.getRut(),
+                dealer.getEmail(),
+                dealer.getPhone(),
+                dealer.getVehicle(),
+                dealer.getPlate(),
+                dealer.getUbication(), // Asegúrate que esté en formato WKT: "POINT(long lat)"
+                dealer.getId());
     }
 
     /**
      * Metodo para eliminar un dealer de la base de datos.
+     *
      * @param "id" El id del dealer a eliminar.
      * @return void
-     *
      */
     public void delete(int id) {
         String sql = "DELETE FROM dealers WHERE id = ?";
@@ -64,32 +73,36 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Metodo para buscar un dealer por su id.
+     *
      * @param "id" El id del dealer a buscar.
      * @return El dealer encontrado.
-     *
      */
-    public DealerEntity findById(int id) {
-        String sql = "SELECT id, name, rut, email, phone, vehicle, plate, user_id, ST_AsText(ubication) as ubication FROM dealers";
-        return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> {
-            DealerEntity dealer = new DealerEntity();
-            dealer.setId(rs.getInt("id"));
-            dealer.setName(rs.getString("name"));
-            dealer.setRut(rs.getString("rut"));
-            dealer.setEmail(rs.getString("email"));
-            dealer.setPhone(rs.getString("phone"));
-            dealer.setVehicle(rs.getString("vehicle"));
-            dealer.setPlate(rs.getString("plate"));
-            dealer.setUbication(rs.getString("ubication"));
-            return dealer;
-        });
-    }
+    public DealerEntity findById(Integer id) {
+        String sql = "SELECT id, name, rut, email, phone, vehicle, plate, user_id, ST_AsText(ubication) as ubication FROM dealers WHERE id = ?";
 
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) -> {
+                DealerEntity dealer = new DealerEntity();
+                dealer.setId(rs.getInt("id"));
+                dealer.setName(rs.getString("name"));
+                dealer.setRut(rs.getString("rut"));
+                dealer.setEmail(rs.getString("email"));
+                dealer.setPhone(rs.getString("phone"));
+                dealer.setVehicle(rs.getString("vehicle"));
+                dealer.setPlate(rs.getString("plate"));
+                dealer.setUbication(rs.getString("ubication"));
+                return dealer;
+            });
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 
 
     /**
      * Metodo para buscar todos los dealers.
-     * @return Una lista de todos los dealers.
      *
+     * @return Una lista de todos los dealers.
      */
     public List<DealerEntity> findAll() {
         String sql = "SELECT id, name, rut, email, phone, vehicle, plate, user_id, ST_AsText(ubication) as ubication FROM dealers";
@@ -112,8 +125,8 @@ public class DealerRepository  implements DealerRepositoryInt {
      * Metodo para obtener el tiempo promedio de entrega por repartidor.
      * Este método realiza una consulta SQL que calcula el tiempo promedio entre la fecha de pedido y la fecha de entrega para cada repartidor.
      * El resultado se agrupa por el ID y nombre del repartidor, y se ordena de menor a mayor tiempo promedio.
-     * @return Una lista de mapas, donde cada mapa contiene el ID y nombre del repartidor, y el tiempo promedio de entrega en horas.
      *
+     * @return Una lista de mapas, donde cada mapa contiene el ID y nombre del repartidor, y el tiempo promedio de entrega en horas.
      */
     //RF 04: tiempo promedio entre entrega y pedido por repartidor
     public List<Map<String, Object>> getAverageDeliveryTimeByDealer() {
@@ -140,9 +153,9 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Metodo para buscar el nombre de un dealer por su id.
+     *
      * @param "dealerId" El id del dealer a buscar.
      * @return El nombre del dealer encontrado o "Sin asignar" si no se encuentra.
-     *
      */
     public String findDealerNameById(int dealerId) {
         String sql = "SELECT name FROM dealers WHERE id = ?";
@@ -159,8 +172,8 @@ public class DealerRepository  implements DealerRepositoryInt {
      * Este método realiza una consulta SQL que calcula el puntaje de rendimiento de cada repartidor basado en el número de entregas y la calificación promedio.
      * El puntaje se calcula como 70% del número de entregas y 30% de la calificación promedio.
      * El resultado se agrupa por el ID y nombre del repartidor, y se ordena de mayor a menor puntaje.
-     * @return Una lista de mapas, donde cada mapa contiene el ID y nombre del repartidor, el total de entregas, la calificación promedio y el puntaje de rendimiento.
      *
+     * @return Una lista de mapas, donde cada mapa contiene el ID y nombre del repartidor, el total de entregas, la calificación promedio y el puntaje de rendimiento.
      */
     //RF 05: tres mejores repartidores
     public List<Map<String, Object>> getTopPerformingDealers() {
@@ -192,9 +205,9 @@ public class DealerRepository  implements DealerRepositoryInt {
      * Metodo para obtener el tiempo promedio de entrega por repartidor autenticado.
      * Este método realiza una consulta SQL que calcula el tiempo promedio entre la fecha de pedido y la fecha de entrega para el repartidor autenticado.
      * El resultado se agrupa por el ID y nombre del repartidor, y se ordena de menor a mayor tiempo promedio.
+     *
      * @param "userId" El id del usuario autenticado.
      * @return El tiempo promedio de entrega en horas.
-     *
      */
     public Double getAverageDeliveryTimeByAuthenticatedDealer(Long userId) {
         // Obtener el dealerId asociado al usuario autenticado
@@ -219,9 +232,9 @@ public class DealerRepository  implements DealerRepositoryInt {
     /**
      * Metodo para contar el número de entregas realizadas por el repartidor autenticado.
      * Este método realiza una consulta SQL que cuenta el número de entregas realizadas por el repartidor autenticado.
+     *
      * @param "userId" El id del usuario autenticado.
      * @return El número de entregas realizadas.
-     *
      */
     public Integer getDeliveryCountByAuthenticatedDealer(Long userId) {
         // Obtener el dealerId asociado al usuario autenticado
@@ -244,6 +257,7 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Obtiene la calificación promedio de un repartidor
+     *
      * @param dealerId ID del repartidor
      * @return Calificación promedio o null si no hay calificaciones
      */
@@ -263,6 +277,7 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Obtiene el número de entregas de un repartidor
+     *
      * @param dealerId ID del repartidor
      * @return Número de entregas
      */
@@ -278,6 +293,7 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Obtiene el tiempo promedio de entrega de un repartidor
+     *
      * @param dealerId ID del repartidor
      * @return Tiempo promedio en horas o null si no hay entregas
      */
@@ -298,6 +314,7 @@ public class DealerRepository  implements DealerRepositoryInt {
 
     /**
      * Busca un repartidor por el ID de usuario
+     *
      * @param userId ID del usuario asociado al repartidor
      * @return Entidad del repartidor
      * Este metodo es para que funcione otro metodo
@@ -324,9 +341,10 @@ public class DealerRepository  implements DealerRepositoryInt {
     }
 
     // rf 3: calcular la distancia total recorrida por un dealer en el ultimo mes
-    public Double getTotalDistanceByAuthenticatedDealer(Long userId){
+    public Double getTotalDistanceByAuthenticatedDealer(Long userId) {
         String sql = """
-            SELECT
+            
+                SELECT
                 SUM(
                     ST_Length(o.estimated_route::geography)
                 ) AS total_distance
@@ -349,10 +367,8 @@ public class DealerRepository  implements DealerRepositoryInt {
         } catch (EmptyResultDataAccessException e) {
             // Esto ocurre si la consulta no devuelve ninguna fila
             return 0.0;
-        }
-    }
-
-
-
 
 }
+    }
+
+    }

@@ -2,6 +2,7 @@ package bdavanzadas.lab1.Controllers;
 
 import bdavanzadas.lab1.entities.DealerEntity;
 import bdavanzadas.lab1.services.DealerService;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -90,14 +91,23 @@ public class DealerController {
      *
      * */
     @PutMapping("/{id}")
-    public ResponseEntity<DealerEntity> updateDealer(@PathVariable int id, @RequestBody DealerEntity dealer) {
-        DealerEntity existingDealer = dealerService.getDealerById(id);
-        if (existingDealer != null) {
+    public ResponseEntity<?> updateDealer(@PathVariable Integer id, @RequestBody DealerEntity dealer) {
+        try {
+            // Verificar existencia
+            DealerEntity existingDealer = dealerService.getDealerById(id);
+            if (existingDealer == null) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Asignar ID y actualizar
             dealer.setId(id);
             dealerService.updateDealer(dealer);
-            return new ResponseEntity<>(dealer, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+
+            return ResponseEntity.ok(dealer);
+        } catch (DataIntegrityViolationException e) {
+            return ResponseEntity.badRequest().body("Error de integridad de datos: " + e.getMostSpecificCause().getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al actualizar el dealer");
         }
     }
 

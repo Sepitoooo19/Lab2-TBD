@@ -53,7 +53,7 @@ public interface DealerRepositoryInt {
      * @return El dealer encontrado.
      *
      */
-    DealerEntity findById(int id);
+    DealerEntity findById(Integer id);
 
     /**
      * Metodo para obtener el tiempo promedio de entrega por repartidor.
