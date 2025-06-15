@@ -105,7 +105,7 @@ CREATE TABLE emergency_report (
                                    ubication GEOMETRY(Point, 4326) NOT NULL,
 
                                    FOREIGN KEY (order_id) REFERENCES orders(id),
-                                   FOREIGN KEY (dealer_id) REFERENCES dealers(id),
+                                   FOREIGN KEY (dealer_id) REFERENCES dealers(id)
 
 );
 
