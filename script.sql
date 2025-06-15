@@ -16,6 +16,7 @@ DROP TABLE IF EXISTS companies CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS coverage_area CASCADE;
 DROP TABLE IF EXISTS coverage_area_company CASCADE;
+DROP TABLE IF EXISTS emergency_report CASCADE;
 
 
 -- Eliminar procedimientos almacenados
@@ -95,6 +96,17 @@ CREATE TABLE order_details (
                                total_products INT,
                                price FLOAT,
                                FOREIGN KEY (order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE emergency_report (
+                                   id SERIAL PRIMARY KEY,
+                                   order_id INT NOT NULL,
+                                   dealer_id INT NOT NULL,
+                                   ubication GEOMETRY(Point, 4326) NOT NULL,
+
+                                   FOREIGN KEY (order_id) REFERENCES orders(id),
+                                   FOREIGN KEY (dealer_id) REFERENCES dealers(id),
+
 );
 
 -- ========================
