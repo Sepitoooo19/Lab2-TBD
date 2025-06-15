@@ -98,16 +98,6 @@ CREATE TABLE order_details (
                                FOREIGN KEY (order_id) REFERENCES orders(id)
 );
 
-CREATE TABLE emergency_report (
-                                   id SERIAL PRIMARY KEY,
-                                   order_id INT NOT NULL,
-                                   dealer_id INT NOT NULL,
-                                   ubication GEOMETRY(Point, 4326) NOT NULL,
-
-                                   FOREIGN KEY (order_id) REFERENCES orders(id),
-                                   FOREIGN KEY (dealer_id) REFERENCES dealers(id)
-
-);
 
 -- ========================
 -- USERS (EXTENDED PROFILES)
@@ -167,6 +157,18 @@ CREATE TABLE ratings (
                          FOREIGN KEY (dealer_id) REFERENCES dealers(id),
                          FOREIGN KEY (order_id) REFERENCES orders(id)
 );
+
+CREATE TABLE emergency_report (
+                                  id SERIAL PRIMARY KEY,
+                                  order_id INT NOT NULL,
+                                  dealer_id INT NOT NULL,
+                                  ubication GEOMETRY(Point, 4326) NOT NULL,
+
+                                  FOREIGN KEY (order_id) REFERENCES orders(id),
+                                  FOREIGN KEY (dealer_id) REFERENCES dealers(id)
+
+);
+
 
 -- ========================
 -- RELATIONAL TABLES (N:N)
