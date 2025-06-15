@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.Controllers;
 
+import bdavanzadas.lab1.dtos.DealerWithDistanceDTO;
 import bdavanzadas.lab1.entities.DealerEntity;
 import bdavanzadas.lab1.services.DealerService;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -260,6 +261,12 @@ public class DealerController {
                             "details", e.getMessage()
                     ));
         }
+    }
+
+    @GetMapping("/with-distance")
+    public ResponseEntity<List<DealerWithDistanceDTO>> getAllDealersWithDistance() {
+        List<DealerWithDistanceDTO> dealers = dealerService.getAllDealersWithDistance();
+        return ResponseEntity.ok(dealers);
     }
 
 

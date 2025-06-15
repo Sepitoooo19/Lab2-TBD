@@ -21,7 +21,7 @@ public class EmergencyReportRepository {
      * @return Lista de EmergencyReportEntity
      */
     public List<EmergencyReportEntity> findAll() {
-        String sql = "SELECT * FROM emergency_reports";
+        String sql = "SELECT * FROM emergency_report";
         return jdbcTemplate.query(sql, (rs, rowNum) ->
                 new EmergencyReportEntity(
                         rs.getInt("id"),
@@ -37,7 +37,7 @@ public class EmergencyReportRepository {
      * @param emergencyReport El reporte a guardar
      */
     public void save(EmergencyReportEntity emergencyReport) {
-        String sql = "INSERT INTO emergency_reports (order_id, dealer_id, ubication) VALUES (?, ?, ST_GeomFromText(?))";
+        String sql = "INSERT INTO emergency_report (order_id, dealer_id, ubication) VALUES (?, ?, ST_GeomFromText(?))";
         jdbcTemplate.update(sql,
                 emergencyReport.getOrderId(),
                 emergencyReport.getDealerId(),
@@ -49,7 +49,7 @@ public class EmergencyReportRepository {
      * @param emergencyReport El reporte con datos actualizados
      */
     public void update(EmergencyReportEntity emergencyReport) {
-        String sql = "UPDATE emergency_reports SET order_id = ?, dealer_id = ?, ubication = ST_GeomFromText(?) WHERE id = ?";
+        String sql = "UPDATE emergency_report SET order_id = ?, dealer_id = ?, ubication = ST_GeomFromText(?) WHERE id = ?";
         jdbcTemplate.update(sql,
                 emergencyReport.getOrderId(),
                 emergencyReport.getDealerId(),
@@ -62,7 +62,7 @@ public class EmergencyReportRepository {
      * @param id ID del reporte a eliminar
      */
     public void delete(int id) {
-        String sql = "DELETE FROM emergency_reports WHERE id = ?";
+        String sql = "DELETE FROM emergency_report WHERE id = ?";
         jdbcTemplate.update(sql, id);
     }
 
@@ -72,7 +72,7 @@ public class EmergencyReportRepository {
      * @return EmergencyReportEntity encontrado
      */
     public EmergencyReportEntity findById(int id) {
-        String sql = "SELECT id, order_id, dealer_id, ST_AsText(ubication) as ubication FROM emergency_reports WHERE id = ?";
+        String sql = "SELECT id, order_id, dealer_id, ST_AsText(ubication) as ubication FROM emergency_report WHERE id = ?";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
                 new EmergencyReportEntity(
                         rs.getInt("id"),
@@ -88,7 +88,7 @@ public class EmergencyReportRepository {
      * @return Lista de EmergencyReportEntity
      */
     public List<EmergencyReportEntity> findByOrderId(int orderId) {
-        String sql = "SELECT id, order_id, dealer_id, ST_AsText(ubication) as ubication FROM emergency_reports WHERE order_id = ?";
+        String sql = "SELECT id, order_id, dealer_id, ST_AsText(ubication) as ubication FROM emergency_report WHERE order_id = ?";
         return jdbcTemplate.query(sql, new Object[]{orderId}, (rs, rowNum) ->
                 new EmergencyReportEntity(
                         rs.getInt("id"),
@@ -104,7 +104,7 @@ public class EmergencyReportRepository {
      * @return Lista de EmergencyReportEntity
      */
     public List<EmergencyReportEntity> findByDealerId(int dealerId) {
-        String sql = "SELECT id, order_id, dealer_id, ST_AsText(ubication) as ubication FROM emergency_reports WHERE dealer_id = ?";
+        String sql = "SELECT id, order_id, dealer_id, ST_AsText(ubication) as ubication FROM emergency_report WHERE dealer_id = ?";
         return jdbcTemplate.query(sql, new Object[]{dealerId}, (rs, rowNum) ->
                 new EmergencyReportEntity(
                         rs.getInt("id"),

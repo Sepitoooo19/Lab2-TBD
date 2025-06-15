@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.repositories;
 
+import bdavanzadas.lab1.dtos.DealerWithDistanceDTO;
 import bdavanzadas.lab1.entities.DealerEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -370,7 +371,34 @@ public class DealerRepository  implements DealerRepositoryInt {
             // Esto ocurre si la consulta no devuelve ninguna fila
             return 0.0;
 
-}
+        }
     }
 
+    public List<DealerWithDistanceDTO> findAllWithDistance() {
+        String sql = """
+            SELECT 
+                d.id,
+                d.name,
+                COALESCE(
+                    SUM(ST_Length(o.estimated_route::geography)), 
+                    0.0
+                ) AS distance_meters
+            FROM dealers d
+            LEFT JOIN orders o ON d.id = o.dealer_id 
+                AND o.status = 'ENTREGADO'
+                AND o.delivery_date >= date_trunc('month', CURRENT_DATE)
+                AND o.delivery_date < date_trunc('month', CURRENT_DATE) + interval '1 month'
+                AND o.estimated_route IS NOT NULL
+            GROUP BY d.id, d.name
+            ORDER BY distance_meters DESC
+            """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new DealerWithDistanceDTO(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getDouble("distance_meters")
+                ));
     }
+
+}

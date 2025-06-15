@@ -13,7 +13,7 @@ import java.util.List;
  * Controlador REST para manejar operaciones relacionadas con reportes de emergencia
  */
 @RestController
-@RequestMapping("/api/emergencies")
+@RequestMapping("/emergencies")
 public class EmergencyReportController {
 
     private final EmergencyReportService emergencyReportService;

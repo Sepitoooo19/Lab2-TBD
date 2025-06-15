@@ -1,5 +1,6 @@
 package bdavanzadas.lab1.services;
 
+import bdavanzadas.lab1.dtos.DealerWithDistanceDTO;
 import bdavanzadas.lab1.entities.ClientEntity;
 import bdavanzadas.lab1.repositories.OrdersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -251,6 +252,17 @@ public class DealerService {
         } catch (Exception e) {
             throw new RuntimeException("Error al obtener datos del cliente: " + e.getMessage());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<DealerWithDistanceDTO> getAllDealersWithDistance() {
+        return dealerRepository.findAllWithDistance();
+    }
+
+    // Método para convertir metros a kilómetros formateados
+    public String formatDistance(Double meters) {
+        if (meters == null || meters == 0) return "0 km";
+        return String.format("%.2f km", meters / 1000);
     }
 
 
