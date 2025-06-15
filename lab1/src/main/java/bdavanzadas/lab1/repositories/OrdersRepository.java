@@ -11,11 +11,7 @@ import org.springframework.stereotype.Repository;
 import bdavanzadas.lab1.dtos.OrderTotalProductsDTO;
 import bdavanzadas.lab1.dtos.OrderNameAddressDTO;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 
 
 /**
@@ -549,5 +545,11 @@ public class OrdersRepository implements OrdersRepositoryInt {
                 ));
     }
 
- }
+    public void updateOrderStatusAndDeliveryDate(int orderId, int dealerId, String status, Date deliveryDate) {
+        jdbcTemplate.update(
+                "UPDATE orders SET status = ?, delivery_date = ? WHERE id = ? AND dealer_id = ?",
+                status, deliveryDate, orderId, dealerId
+        );
+    }
+}
 

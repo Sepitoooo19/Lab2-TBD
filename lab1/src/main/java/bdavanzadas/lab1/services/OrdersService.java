@@ -311,7 +311,19 @@ public class OrdersService {
      */
     @Transactional
     public void updateOrderStatusByDealerId(int orderId, int dealerId, String newStatus) {
-        ordersRepository.updateOrderStatusByDealerId(orderId, dealerId, newStatus);
+        OrdersEntity order = ordersRepository.findById(orderId);
+        if (order == null || !dealerIdEquals(order.getDealerId(), dealerId)) {
+            throw new IllegalArgumentException("No autorizado o no existe la orden.");
+        }
+        if ("ENTREGADO".equalsIgnoreCase(newStatus)) {
+            // Actualiza status y fecha de entrega directamente vía repositorio (sin procedimiento)
+            ordersRepository.updateOrderStatusAndDeliveryDate(orderId, dealerId, newStatus, new Date());
+        } else if ("FALLIDA".equalsIgnoreCase(newStatus)) {
+            // Borra la fecha de entrega
+            ordersRepository.updateOrderStatusAndDeliveryDate(orderId, dealerId, newStatus, null);
+        } else {
+            ordersRepository.updateOrderStatusByDealerId(orderId, dealerId, newStatus);
+        }
     }
 
 
@@ -509,6 +521,16 @@ public class OrdersService {
      */
     public List<OrderNameAddressDTO> getOrdersCrossingMultipleCoverageAreas() {
         return ordersRepository.findOrdersCrossingMoreThanTwoCoverageAreas();
+    }
+
+    /**
+     * Compara si el dealerId de la entidad OrdersEntity es igual al dealerId proporcionado.
+     * @param a El dealerId de la entidad OrdersEntity.
+     * @param b El dealerId proporcionado para comparar.
+     * @return true si son iguales, false en caso contrario.
+     */
+    private boolean dealerIdEquals(Integer a, int b) {
+        return a != null && a == b;
     }
 
 }
