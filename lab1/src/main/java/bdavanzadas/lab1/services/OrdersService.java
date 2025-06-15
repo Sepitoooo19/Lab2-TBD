@@ -503,5 +503,12 @@ public class OrdersService {
         ordersRepository.updateEstimatedRouteFromPoints(orderId, points);
     }
 
+    /**
+     * Obtiene los pedidos cuya ruta estimada cruza más de 2 zonas de reparto
+     * @return Lista de OrderNameAddressDTO con los pedidos que cumplen el criterio
+     */
+    public List<OrderNameAddressDTO> getOrdersCrossingMultipleCoverageAreas() {
+        return ordersRepository.findOrdersCrossingMoreThanTwoCoverageAreas();
+    }
 
 }

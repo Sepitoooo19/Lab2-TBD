@@ -151,4 +151,45 @@ public class ClientRepository implements ClientRepositoryInt {
         return jdbcTemplate.queryForObject(sql, new Object[]{clientId}, String.class);
     }
 
+    /**
+     * Encuentra clientes que están a más de 5 km de todas las empresas registradas
+     * @return Lista de ClientEntity que cumplen con el criterio de distancia
+     */
+    public List<ClientEntity> findClientsBeyond5KmFromCompanies() {
+        String sql = """
+        SELECT 
+            c.id,
+            c.name,
+            c.rut,
+            c.email,
+            c.phone,
+            c.address,
+            c.user_id,
+            c.ubication
+        FROM clients c
+        WHERE NOT EXISTS (
+            SELECT 1 
+            FROM companies co
+            WHERE ST_DWithin(
+                c.ubication::geography,
+                co.ubication::geography,
+                5000  -- 5000 metros = 5 km
+            )
+        )
+        ORDER BY c.name
+    """;
+
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new ClientEntity(
+                        rs.getInt("id"),
+                        rs.getString("name"),
+                        rs.getString("rut"),
+                        rs.getString("email"),
+                        rs.getString("phone"),
+                        rs.getString("address"),
+                        rs.getInt("user_id"),
+                        rs.getString("ubication")
+                ));
+    }
+
 }

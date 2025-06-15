@@ -102,4 +102,14 @@ public class ClientController {
                     .body(Map.of("error", "Error del servidor", "details", e.getMessage()));
         }
     }
+
+    /**
+     * Obtiene los clientes ubicados a mas de 5km de la empresa mas cercana
+     * @return Lista de clientes que estan a mas de 5km
+     */
+    @GetMapping("/beyond-5km")
+    public ResponseEntity<List<ClientEntity>> getClientsBeyond5Km() {
+        List<ClientEntity> clients = clientService.getClientsBeyond5KmFromCompanies();
+        return ResponseEntity.ok(clients);
+    }
 }

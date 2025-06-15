@@ -506,10 +506,48 @@ public class OrdersRepository implements OrdersRepositoryInt {
         jdbcTemplate.update(sql, args.toArray());
     }
 
+    /**
+     * Método para obtener los pedidos cuya ruta estimada cruza más de 2 zonas de reparto.
+     * Utiliza funciones geoespaciales para determinar las intersecciones entre la ruta del pedido
+     * y las áreas de cobertura definidas en el sistema.
+     *
+     * @return La lista de ordenes con nombre y dirección del cliente que cruzan mas de 2 zonas.
+     */
+    public List<OrderNameAddressDTO> findOrdersCrossingMoreThanTwoCoverageAreas() {
+        String sql = """
+        SELECT 
+            o.id AS order_id,
+            o.order_date,
+            o.delivery_date,
+            o.status,
+            o.total_price,
+            o.client_id,
+            c.name AS name_client,
+            c.address AS client_address
+        FROM 
+            orders o
+        LEFT JOIN 
+            clients c ON o.client_id = c.id
+        WHERE (
+            SELECT COUNT(DISTINCT ca.coverage_id)
+            FROM coverage_area ca
+            WHERE ST_Crosses(o.estimated_route, ca.coverageArea)
+               OR ST_Intersects(o.estimated_route, ca.coverageArea)
+        ) > 2
+    """;
 
-
-
-
+        return jdbcTemplate.query(sql, (rs, rowNum) ->
+                new OrderNameAddressDTO(
+                        rs.getInt("order_id"),
+                        rs.getTimestamp("order_date"),
+                        rs.getTimestamp("delivery_date"),
+                        rs.getString("status"),
+                        rs.getDouble("total_price"),
+                        rs.getInt("client_id"),
+                        rs.getString("name_client"),
+                        rs.getString("client_address")
+                ));
+    }
 
  }
 

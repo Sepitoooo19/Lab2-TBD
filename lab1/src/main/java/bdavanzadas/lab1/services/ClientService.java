@@ -107,4 +107,8 @@ public class ClientService {
             throw new RuntimeException("Error al obtener datos del cliente: " + e.getMessage());
         }
     }
+
+    public List<ClientEntity> getClientsBeyond5KmFromCompanies() {
+        return clientRepository.findClientsBeyond5KmFromCompanies();
+    }
 }

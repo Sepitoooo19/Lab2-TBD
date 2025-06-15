@@ -505,4 +505,14 @@ public class OrdersController {
         ordersService.updateOrderRouteWithPoints(id, points);
         return ResponseEntity.ok().build();
     }
+
+    /**
+     * Obtiene los pedidos cuya ruta estimada cruza más de 2 zonas de reparto
+     * @return Lista de OrderNameAddressDTO con información de pedidos y clientes
+     */
+    @GetMapping("/crossing-multiple-zones")
+    public ResponseEntity<List<OrderNameAddressDTO>> getOrdersCrossingMultipleZones() {
+        List<OrderNameAddressDTO> orders = ordersService.getOrdersCrossingMultipleCoverageAreas();
+        return ResponseEntity.ok(orders);
+    }
 }
