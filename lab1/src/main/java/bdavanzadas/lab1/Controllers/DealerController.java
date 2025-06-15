@@ -31,6 +31,8 @@ public class DealerController {
      * */
     private final DealerService dealerService;
 
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(DealerController.class);
+
 
     /**
      *
@@ -238,17 +240,25 @@ public class DealerController {
      * @return Datos del cliente o mensaje de error
      */
     @GetMapping("/me/data")
-    public ResponseEntity<?> getAuthenticatedClientProfile() {
+    public ResponseEntity<?> getAuthenticatedCompleteDealerProfile() {
         try {
             Map<String, Object> dealerData = dealerService.getAuthenticatedCompleteDealerData();
+
+            // Asegúrate que todos los campos requeridos estén presentes
+            if(dealerData.get("ubication") == null) {
+                dealerData.put("ubication", ""); // Valor por defecto si es null
+            }
+
             return ResponseEntity.ok(dealerData);
         } catch (RuntimeException e) {
-            if (e.getMessage().contains("No existe un dealer asociado")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "Dealer no encontrado", "details", e.getMessage()));
-            }
+            // Registra el error completo para diagnóstico
+            logger.error("Error en getAuthenticatedCompleteDealerProfile", e);
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Error del servidor", "details", e.getMessage()));
+                    .body(Map.of(
+                            "error", "Error al obtener datos completos",
+                            "details", e.getMessage()
+                    ));
         }
     }
 

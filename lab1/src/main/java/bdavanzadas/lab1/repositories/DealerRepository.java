@@ -320,7 +320,9 @@ public class DealerRepository  implements DealerRepositoryInt {
      * Este metodo es para que funcione otro metodo
      */
     public DealerEntity findByUserId(int userId) {
-        String sql = "SELECT * FROM dealers WHERE user_id = ?";
+        String sql = "SELECT id, user_id, name, rut, email, phone, vehicle, plate, " +
+                "ST_AsText(ubication) as ubication " + // Convertir a WKT
+                "FROM dealers WHERE user_id = ?";
         try {
             return jdbcTemplate.queryForObject(sql, new Object[]{userId}, (rs, rowNum) -> {
                 DealerEntity dealer = new DealerEntity();
