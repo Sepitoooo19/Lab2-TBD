@@ -12,6 +12,7 @@
 ## Base de datos
 * Postgres SQL
 * PgAdmin versión 4
+* Postgis
 
 
 ## Backend
@@ -29,8 +30,8 @@ Esta guía te ayudará a configurar tu entorno de desarrollo para trabajar con I
 
 ## 1. Clonar los repositorios
 
-git clone https://github.com/Sepitoooo19/Front-Lab1-TBD (para frontend)
-git clone https://github.com/Sepitoooo19/Lab1-TBD (para backend)
+git clone https://github.com/Sepitoooo19/Front-Lab2-TBD (para frontend)
+git clone https://github.com/Sepitoooo19/Lab2-TBD (para backend)
 
 ## 2. Instalación de IntelliJ IDEA
 
@@ -51,6 +52,8 @@ git clone https://github.com/Sepitoooo19/Lab1-TBD (para backend)
 1. Descarga pgAdmin desde el sitio web oficial: [Descargar pgAdmin](https://www.pgadmin.org/download/).
 
 2. Instala pgAdmin siguiendo las instrucciones para tu sistema operativo.
+
+3. Instala la extensión de postgis desde la app Application Stack Builder
 
 ## 4. Crear base de datos y cargar información
 
