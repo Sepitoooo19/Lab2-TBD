@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import java.util.Collections;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -183,4 +184,43 @@ public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
                 companyId, clientId, maxDistanceMeters);
         return Boolean.TRUE.equals(result);
     }
+
+    public List<CoverageCheckDTO> getClientCoverages(int clientId) {
+        String sql = """
+        SELECT 
+            c.id AS client_id,
+            c.name AS client_name,
+            comp.id AS company_id,
+            comp.name AS company_name,
+            ca.coverage_id,
+            ca.name AS coverage_name,
+            TRUE AS is_covered,
+            0 AS distance_meters
+        FROM 
+            clients c
+        JOIN coverage_area_company cac ON 1=1
+        JOIN coverage_area ca ON ca.coverage_id = cac.coverage_id
+        JOIN companies comp ON comp.id = cac.company_id
+        WHERE 
+            c.id = ?
+            AND ST_Within(c.ubication, ca.coverageArea)
+        """;
+
+        try {
+            return jdbcTemplate.query(sql, (rs, rowNum) ->
+                    new CoverageCheckDTO(
+                            rs.getInt("client_id"),
+                            rs.getString("client_name"),
+                            rs.getInt("company_id"),
+                            rs.getString("company_name"),
+                            rs.getObject("coverage_id", Integer.class),
+                            rs.getString("coverage_name"),
+                            true, // Siempre true porque el WHERE ya filtra por ST_Within
+                            0 // distance_meters fijado en 0 como solicitaste
+                    ), clientId);
+        } catch (DataAccessException e) {
+            // Si hay error, devolvemos lista vacía
+            return Collections.emptyList();
+        }
     }
+}

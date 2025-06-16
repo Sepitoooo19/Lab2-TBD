@@ -213,7 +213,7 @@ CREATE OR REPLACE PROCEDURE register_order_with_products(
     p_status VARCHAR,
     p_client_id INT,
     p_product_ids INT[],
-    p_dealer_id INT DEFAULT NULL
+    p_dealer_id INT DEFAULT NULL  -- Mantener este parámetro aunque no se use
 )
 LANGUAGE plpgsql
 AS $$
@@ -221,23 +221,70 @@ DECLARE
 v_order_id INT;
     v_product_id INT;
     v_total_price FLOAT := 0.0;
+    v_client_location GEOMETRY;
+    v_company_location GEOMETRY;
+    v_estimated_route GEOMETRY;
 BEGIN
-    -- Calcular el precio total de los productos
+    -- 1. Validar que haya productos
+    IF array_length(p_product_ids, 1) IS NULL OR array_length(p_product_ids, 1) = 0 THEN
+        RAISE EXCEPTION 'La orden debe contener al menos un producto';
+END IF;
+
+    -- 2. Obtener ubicación del cliente
+SELECT ubication INTO v_client_location
+FROM clients
+WHERE id = p_client_id;
+
+IF v_client_location IS NULL THEN
+        RAISE EXCEPTION 'El cliente con ID % no tiene ubicación registrada', p_client_id;
+END IF;
+
+    -- 3. Obtener empresa del primer producto para la ubicación
+SELECT c.ubication INTO v_company_location
+FROM products p
+         JOIN companies c ON p.company_id = c.id
+WHERE p.id = p_product_ids[1]
+    LIMIT 1;
+
+IF v_company_location IS NULL THEN
+        RAISE EXCEPTION 'No se pudo determinar la ubicación de la empresa para el producto ID %', p_product_ids[1];
+END IF;
+
+    -- 4. Calcular ruta recta (línea directa entre empresa y cliente)
+    v_estimated_route := ST_MakeLine(v_company_location, v_client_location);
+
+    -- 5. Calcular el precio total de los productos
 SELECT COALESCE(SUM(price), 0)
 INTO v_total_price
 FROM products
 WHERE id = ANY(p_product_ids);
 
--- Insertar la orden con el total calculado
-INSERT INTO orders (order_date, status, client_id, dealer_id, total_price)
-VALUES (p_order_date, p_status, p_client_id, p_dealer_id, v_total_price)
+-- 6. Insertar la orden con la ruta estimada
+INSERT INTO orders (
+    order_date,
+    status,
+    client_id,
+    dealer_id,  -- Se usa el parámetro p_dealer_id
+    total_price,
+    estimated_route
+)
+VALUES (
+           p_order_date,
+           p_status,
+           p_client_id,
+           p_dealer_id,  -- Usar el parámetro en lugar de NULL fijo
+           v_total_price,
+           v_estimated_route
+       )
     RETURNING id INTO v_order_id;
 
--- Insertar los productos y actualizar stock
+-- 7. Procesar productos
 FOREACH v_product_id IN ARRAY p_product_ids LOOP
+        -- Registrar producto en la orden
         INSERT INTO order_products (order_id, product_id)
         VALUES (v_order_id, v_product_id);
 
+        -- Reducir stock
 UPDATE products
 SET stock = stock - 1
 WHERE id = v_product_id AND stock > 0;

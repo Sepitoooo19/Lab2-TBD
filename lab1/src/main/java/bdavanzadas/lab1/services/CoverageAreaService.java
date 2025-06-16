@@ -61,4 +61,18 @@ public class CoverageAreaService {
 
         return coverageAreaRepository.getClientCoverageDetails(clientId, companyId);
     }
+
+    /**
+     * Obtiene todas las coberturas donde se encuentra un cliente
+     * @param clientId ID del cliente a verificar
+     * @return Lista de CoverageCheckDTO con las coberturas encontradas
+     */
+    public List<CoverageCheckDTO> getClientCoverages(int clientId) {
+        // Validación básica del ID
+        if (clientId <= 0) {
+            throw new IllegalArgumentException("El ID de cliente debe ser mayor a cero");
+        }
+
+        return coverageAreaRepository.getClientCoverages(clientId);
+    }
 }

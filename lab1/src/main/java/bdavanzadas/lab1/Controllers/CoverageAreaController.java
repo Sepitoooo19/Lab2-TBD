@@ -83,4 +83,27 @@ public class CoverageAreaController {
             return ResponseEntity.internalServerError().body("Error al obtener detalles de cobertura");
         }
     }
+
+    /**
+     * Obtiene todas las áreas de cobertura donde se encuentra un cliente
+     * @param clientId ID del cliente a consultar
+     * @return Lista de CoverageCheckDTO con las coberturas encontradas
+     */
+    @GetMapping("/client-coverage/{clientId}")
+    public ResponseEntity<?> getClientCoverages(@PathVariable int clientId) {
+        try {
+            List<CoverageCheckDTO> coverages = coverageAreaService.getClientCoverages(clientId);
+
+            if (coverages.isEmpty()) {
+                return ResponseEntity.ok().body("El cliente no se encuentra en ninguna zona de cobertura");
+            }
+
+            return ResponseEntity.ok(coverages);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Error al consultar las coberturas del cliente");
+        }
+    }
 }
