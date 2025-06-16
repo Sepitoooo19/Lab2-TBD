@@ -207,13 +207,13 @@ CREATE TABLE order_products (
 -- PROCEDIMIENTOS ALMACENADOS
 -- ========================
 
--- 1 y 3 Registrar un pedido completo y descuenta el stock.
 CREATE OR REPLACE PROCEDURE register_order_with_products(
     p_order_date TIMESTAMP,
     p_status VARCHAR,
     p_client_id INT,
     p_product_ids INT[],
-    p_dealer_id INT DEFAULT NULL
+    p_dealer_id INT DEFAULT NULL,
+    p_estimated_route GEOMETRY DEFAULT NULL
 )
 LANGUAGE plpgsql
 AS $$
@@ -221,34 +221,78 @@ DECLARE
 v_order_id INT;
     v_product_id INT;
     v_total_price FLOAT := 0.0;
+    v_company_location GEOMETRY;
+    v_client_location GEOMETRY;
+    v_route GEOMETRY;
+    v_last_product_id INT;
 BEGIN
-    -- Calcular el precio total de los productos
+    -- Validaciones iniciales
+    IF array_length(p_product_ids, 1) IS NULL OR array_length(p_product_ids, 1) = 0 THEN
+        RAISE EXCEPTION 'La lista de productos no puede estar vacía';
+END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM clients WHERE id = p_client_id) THEN
+        RAISE EXCEPTION 'Cliente con ID % no existe', p_client_id;
+END IF;
+
+    -- Obtener último producto ID
+    v_last_product_id := p_product_ids[array_length(p_product_ids, 1)];
+
+    -- Calcular precio total
 SELECT COALESCE(SUM(price), 0)
 INTO v_total_price
 FROM products
 WHERE id = ANY(p_product_ids);
 
--- Insertar la orden con el total calculado
-INSERT INTO orders (order_date, status, client_id, dealer_id, total_price)
-VALUES (p_order_date, p_status, p_client_id, p_dealer_id, v_total_price)
+-- Obtener ubicaciones
+BEGIN
+SELECT ubication INTO v_client_location
+FROM clients
+WHERE id = p_client_id;
+
+SELECT c.ubication INTO v_company_location
+FROM products p
+         JOIN companies c ON p.company_id = c.id
+WHERE p.id = v_last_product_id;
+EXCEPTION WHEN NO_DATA_FOUND THEN
+        RAISE EXCEPTION 'No se pudo obtener ubicación para cliente o compañía';
+END;
+
+    -- Crear ruta estimada
+    IF p_estimated_route IS NULL THEN
+        v_route := ST_MakeLine(v_company_location, v_client_location);
+ELSE
+        v_route := p_estimated_route;
+END IF;
+
+    -- Insertar orden
+INSERT INTO orders (order_date, status, client_id, dealer_id, total_price, estimated_route)
+VALUES (p_order_date, p_status, p_client_id, p_dealer_id, v_total_price, v_route)
     RETURNING id INTO v_order_id;
 
--- Insertar los productos y actualizar stock
+-- Procesar productos
 FOREACH v_product_id IN ARRAY p_product_ids LOOP
-        INSERT INTO order_products (order_id, product_id)
-        VALUES (v_order_id, v_product_id);
+        -- Verificar existencia del producto
+        IF NOT EXISTS (SELECT 1 FROM products WHERE id = v_product_id) THEN
+            RAISE EXCEPTION 'Producto con ID % no existe', v_product_id;
+END IF;
 
+INSERT INTO order_products (order_id, product_id)
+VALUES (v_order_id, v_product_id);
+
+-- Actualizar stock con verificación
 UPDATE products
 SET stock = stock - 1
 WHERE id = v_product_id AND stock > 0;
 
 IF NOT FOUND THEN
-            RAISE EXCEPTION 'Sin stock para el producto ID %', v_product_id;
+            RAISE EXCEPTION 'Sin stock disponible para el producto ID %', v_product_id;
 END IF;
 END LOOP;
+
+    -- Eliminamos el COMMIT/ROLLBACK explícito
 END;
 $$;
-
 -- ========================
 
 -- 2 Cambiar el estado de un pedido con validación

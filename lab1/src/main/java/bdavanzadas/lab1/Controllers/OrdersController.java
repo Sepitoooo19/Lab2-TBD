@@ -164,21 +164,45 @@ public class OrdersController {
     }
 
 
-    /**
-     * Endpoint para crear un pedido con productos.
-     * Este endpoint guarda un nuevo pedido en la base de datos y asocia productos a él.
-     */
     @PostMapping("/create")
     public ResponseEntity<?> createOrder(
             @RequestBody OrdersEntity order,
             @RequestParam List<Integer> productIds) {
 
         try {
-            // Asume que order.getEstimatedRoute() contiene el WKT
-            ordersService.createOrderWithProducts(order, productIds, null);
-            return ResponseEntity.ok("Orden creada exitosamente");
+            // Validación básica
+            if (order == null) {
+                return ResponseEntity.badRequest().body("La orden no puede ser nula");
+            }
+
+            if (productIds == null || productIds.isEmpty()) {
+                return ResponseEntity.badRequest().body("Debe especificar al menos un producto");
+            }
+
+            ordersService.createOrderWithProducts(order, productIds);
+
+            return ResponseEntity.ok().body(
+                    Map.of(
+                            "status", "success",
+                            "message", "Orden creada exitosamente",
+                            "orderId", order.getId() // Asumiendo que el ID se asigna automáticamente
+                    )
+            );
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(
+                    Map.of(
+                            "status", "error",
+                            "message", e.getMessage()
+                    )
+            );
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.internalServerError().body(
+                    Map.of(
+                            "status", "error",
+                            "message", "Error interno al crear la orden: " + e.getMessage()
+                    )
+            );
         }
     }
 
