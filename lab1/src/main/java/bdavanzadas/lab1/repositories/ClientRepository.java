@@ -165,7 +165,7 @@ public class ClientRepository implements ClientRepositoryInt {
             c.phone,
             c.address,
             c.user_id,
-            c.ubication
+            ST_AsText(c.ubication) as ubication
         FROM clients c
         WHERE NOT EXISTS (
             SELECT 1 
