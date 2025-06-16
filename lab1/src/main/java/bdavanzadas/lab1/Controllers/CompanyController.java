@@ -177,7 +177,7 @@ public class CompanyController {
 
     /**
      * Endpoint para obtener el ID de una compañía por su nombre
-     * @param name Nombre de la compañía a buscar
+     * @param "name" Nombre de la compañía a buscar
      * @return ResponseEntity con el ID o código de error
      */
     @GetMapping("/by-name/{name}")

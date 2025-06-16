@@ -5,6 +5,14 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
+
+
+/**
+ *
+ * La clase CoverageCheckDTO representa un objeto de transferencia de datos (DTO) que contiene información sobre la cobertura de un cliente.
+ * * Esta clase incluye detalles como el ID del cliente, su nombre, el ID de la empresa, el nombre de la empresa, el ID de la cobertura (que puede ser null si no hay cobertura),
+ *
+ * */
 public class CoverageCheckDTO {
     private int clientId;
     private String clientName;

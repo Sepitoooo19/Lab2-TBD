@@ -486,6 +486,11 @@ public class OrdersController {
         return ResponseEntity.ok(failedOrders);
     }
 
+
+    /**
+     * Endpoint para actualizar la ruta de un pedido utilizando WKT o puntos.
+     * Este endpoint actualiza la ruta de un pedido específico basado en su ID.
+     */
     @PutMapping("/orders/{id}/route/wkt")
     public ResponseEntity<Void> updateRouteWithWKT(
             @PathVariable int id,
@@ -496,7 +501,11 @@ public class OrdersController {
         return ResponseEntity.ok().build();
     }
 
-    // Ejemplo con puntos
+
+    /**
+     * Endpoint para actualizar la ruta de un pedido utilizando puntos.
+     * Este endpoint actualiza la ruta de un pedido específico basado en su ID.
+     */
     @PutMapping("/orders/{id}/route/points")
     public ResponseEntity<Void> updateRouteWithPoints(
             @PathVariable int id,

@@ -16,8 +16,17 @@ import java.util.List;
 @RequestMapping("/emergencies")
 public class EmergencyReportController {
 
+
+    /**
+     * Servicio de reportes de emergencia.
+     * Este servicio se utiliza para interactuar con la base de datos de reportes de emergencia.
+     */
     private final EmergencyReportService emergencyReportService;
 
+    /**
+     * Constructor del controlador que inyecta el servicio de reportes de emergencia
+     * @param emergencyReportService Servicio de reportes de emergencia
+     */
     @Autowired
     public EmergencyReportController(EmergencyReportService emergencyReportService) {
         this.emergencyReportService = emergencyReportService;

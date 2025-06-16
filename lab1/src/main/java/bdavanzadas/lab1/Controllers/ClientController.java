@@ -10,6 +10,13 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ *
+ * La clase ClientController maneja las solicitudes relacionadas con los clientes.
+ * Esta clase contiene métodos para obtener, crear, actualizar y eliminar clientes en la base de datos.
+ *
+ * */
 @RestController
 @RequestMapping("/clients")
 @CrossOrigin(origins = "*")
@@ -21,11 +28,22 @@ public class ClientController {
         this.clientService = clientService;
     }
 
+    /**
+     * Obtiene todas las entidades de clientes.
+     * @return Lista de entidades de clientes
+     */
+
     @GetMapping
     public ResponseEntity<List<ClientEntity>> getAllClients() {
         List<ClientEntity> clients = clientService.getAllClients();
         return new ResponseEntity<>(clients, HttpStatus.OK);
     }
+
+    /**
+     * Obtiene un cliente por su ID.
+     * @param "id" ID del cliente
+     * @return Cliente encontrado o NOT FOUND si no existe
+     */
 
     @GetMapping("/{id}")
     public ResponseEntity<ClientEntity> getClientById(@PathVariable int id) {
@@ -35,6 +53,12 @@ public class ClientController {
                 : new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+
+    /**
+     * Crea un nuevo cliente.
+     * @param "client" Entidad de cliente a crear
+     * @return Cliente creado o BAD REQUEST si el formato es inválido
+     */
     @PostMapping
     public ResponseEntity<?> createClient(@RequestBody ClientEntity client) {
         try {
@@ -48,6 +72,13 @@ public class ClientController {
         }
     }
 
+
+    /**
+     * Actualiza un cliente existente.
+     * @param "id" ID del cliente a actualizar
+     * @param "client" Entidad de cliente con los nuevos datos
+     * @return Cliente actualizado o NOT FOUND si no existe
+     */
     @PutMapping("/{id}")
     public ResponseEntity<?> updateClient(@PathVariable int id, @RequestBody ClientEntity client) {
         try {
@@ -66,6 +97,12 @@ public class ClientController {
         }
     }
 
+
+    /**
+     * Elimina un cliente por su ID.
+     * @param "id" ID del cliente a eliminar
+     * @return NO CONTENT si se eliminó correctamente o NOT FOUND si no existe
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteClient(@PathVariable int id) {
         ClientEntity existingClient = clientService.getClientById(id);
@@ -76,6 +113,12 @@ public class ClientController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+
+    /**
+     * Obtiene el nombre de un cliente por su ID.
+     * @param "id" ID del cliente
+     * @return Nombre del cliente o NOT FOUND si no existe
+     */
     @GetMapping("/name/{id}")
     public ResponseEntity<String> getClientNameById(@PathVariable int id) {
         String clientName = clientService.getNameByClientId(id);

@@ -14,6 +14,10 @@ import java.util.regex.Pattern;
 @Service
 public class CompanyService {
 
+    /**
+     * Repositorio de compañías.
+     * Este repositorio se utiliza para interactuar con la base de datos de compañías.
+     */
     @Autowired
     private CompanyRepository companyRepository;
 

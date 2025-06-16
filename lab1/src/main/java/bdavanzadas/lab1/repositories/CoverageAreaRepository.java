@@ -11,12 +11,27 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+
+/**
+ *
+ * * La clase CoverageAreaRepository implementa la interfaz CoverageAreaRepositoryInt
+ * * y proporciona métodos para interactuar con la base de datos de áreas de cobertura.
+ *
+ * */
 @Repository
 public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
 
+    /**
+     * JdbcTemplate es una clase de Spring que simplifica el acceso a la base de datos.
+     * Se utiliza para ejecutar consultas SQL y mapear los resultados a objetos Java.
+     */
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    /**
+     * Obtiene todas las áreas de cobertura de la base de datos.
+     * * @return Una lista de CoverageAreaEntity que representa todas las áreas de cobertura.
+     */
     @Override
     public List<CoverageAreaEntity> findAll() {
         String sql = "SELECT coverage_id AS id, name, ST_AsText(coverageArea) AS coverageArea FROM coverage_area";
@@ -28,6 +43,11 @@ public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
                 ));
     }
 
+    /**
+     * Busca un área de cobertura por su ID.
+     * @param id El ID del área de cobertura a buscar.
+     * @return Un objeto CoverageAreaEntity que representa el área de cobertura encontrada.
+     */
     @Override
     public CoverageAreaEntity findById(int id) {
         String sql = "SELECT coverage_id AS id, name, ST_AsText(coverageArea) AS coverageArea FROM coverage_area WHERE coverage_id = ?";
@@ -39,6 +59,11 @@ public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
                 ));
     }
 
+
+    /**
+     * Guarda un nuevo área de cobertura en la base de datos.
+     * @param coverageArea El área de cobertura a guardar.
+     */
     @Override
     public void save(CoverageAreaEntity coverageArea) {
         String sql = "INSERT INTO coverage_area (name, coverageArea) VALUES (?, ST_GeomFromText(?, 4326))";
@@ -47,6 +72,11 @@ public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
                 coverageArea.getCoverageArea());
     }
 
+
+    /**
+     * Actualiza un área de cobertura existente en la base de datos.
+     * @param coverageArea El área de cobertura a actualizar.
+     */
     @Override
     public void update(CoverageAreaEntity coverageArea) {
         String sql = "UPDATE coverage_area SET name = ?, coverageArea = ST_GeomFromText(?, 4326) WHERE coverage_id = ?";
@@ -56,18 +86,19 @@ public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
                 coverageArea.getId());
     }
 
+
+    /**
+     * Elimina un área de cobertura de la base de datos por su ID.
+     * @param id El ID del área de cobertura a eliminar.
+     */
     @Override
     public void delete(int id) {
         String sql = "DELETE FROM coverage_area WHERE coverage_id = ?";
         jdbcTemplate.update(sql, id);
     }
 
-    /**
-     * Verifica eficientemente si un cliente está en zona de cobertura
-     * @param clientId ID del cliente
-     * @param companyId ID de la empresa
-     * @return true si está en cobertura, false si no
-     */
+
+
     /**
      * Verifica eficientemente si un cliente está en zona de cobertura
      * @param clientId ID del cliente
@@ -185,6 +216,12 @@ public class CoverageAreaRepository implements CoverageAreaRepositoryInt {
         return Boolean.TRUE.equals(result);
     }
 
+
+    /**
+     * Obtiene todas las coberturas de un cliente específico.
+     * @param clientId ID del cliente
+     * @return Lista de CoverageCheckDTO con la información de cobertura del cliente
+     */
     public List<CoverageCheckDTO> getClientCoverages(int clientId) {
         String sql = """
         SELECT 

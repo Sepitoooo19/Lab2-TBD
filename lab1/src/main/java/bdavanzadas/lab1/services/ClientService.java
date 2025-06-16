@@ -24,10 +24,21 @@ public class ClientService {
     @Autowired
     private UserService userService;
 
+
+    /**
+     * Constructor del servicio de clientes.
+     * @param clientRepository Repositorio de clientes utilizado para acceder a la base de datos.
+     */
     public ClientService(ClientRepository clientRepository) {
         this.clientRepository = clientRepository;
     }
 
+
+    /**
+     * Patrón para validar el formato WKT (Well-Known Text) de una ubicación.
+     * Este patrón verifica que la cadena comience con "POINT(" seguido de dos números (longitud y latitud)
+     * separados por un espacio, y termine con un paréntesis de cierre.
+     */
     // Patrón para validar WKT (ej: "POINT(-70.123 -33.456)")
     private static final Pattern WKT_PATTERN = Pattern.compile(
             "^POINT\\(-?\\d+\\.?\\d* -?\\d+\\.?\\d*\\)$"
@@ -35,39 +46,70 @@ public class ClientService {
 
     // --- Métodos existentes (con validación para save y update) ---
 
+
+    /**
+     * Obtiene todos los clientes de la base de datos.
+     * @return Una lista de entidades de clientes.
+     */
     @Transactional(readOnly = true)
     public List<ClientEntity> getAllClients() {
         return clientRepository.findAll();
     }
 
+    /**
+     * Obtiene un cliente por su ID.
+     * @param id El ID del cliente a buscar.
+     * @return La entidad de cliente correspondiente al ID, o null si no se encuentra.
+     */
     @Transactional(readOnly = true)
     public ClientEntity getClientById(int id) {
         return clientRepository.findById(id);
     }
 
+    /**
+     * Guarda un nuevo cliente en la base de datos.
+     * @param client La entidad de cliente a guardar.
+     */
     @Transactional
     public void saveClient(ClientEntity client) {
         validateUbicacion(client.getUbication()); // Valida el WKT antes de guardar
         clientRepository.save(client);
     }
 
+    /**
+     * Actualiza un cliente existente en la base de datos.
+     * @param client La entidad de cliente a actualizar.
+     */
     @Transactional
     public void updateClient(ClientEntity client) {
         validateUbicacion(client.getUbication()); // Valida el WKT antes de actualizar
         clientRepository.update(client);
     }
 
+    /**
+     * Elimina un cliente de la base de datos por su ID.
+     * @param id El ID del cliente a eliminar.
+     */
     @Transactional
     public void deleteClient(int id) {
         clientRepository.delete(id);
     }
 
+    /**
+     * Busca un cliente por su RUT.
+     * @param rut El RUT del cliente a buscar.
+     * @return La entidad de cliente correspondiente al RUT, o null si no se encuentra.
+     */
     @Transactional(readOnly = true)
     public String getNameByClientId(int id) {
         ClientEntity client = clientRepository.findById(id);
         return client != null ? client.getName() : null;
     }
 
+    /**
+     * Valida el formato de la ubicación en WKT (Well-Known Text).
+     * Este método verifica que la ubicación tenga el formato correcto
+     */
     // --- Método de validación adicional ---
     private void validateUbicacion(String ubicacion) {
         if (ubicacion == null || !WKT_PATTERN.matcher(ubicacion).matches()) {
@@ -78,6 +120,12 @@ public class ClientService {
     }
 
 
+    /**
+     * Obtiene los datos del cliente autenticado.
+     * Este método utiliza el servicio de usuarios para obtener el ID del usuario autenticado
+     * y luego busca el cliente asociado a ese ID.
+     * @return Un mapa con los datos del cliente, o lanza una excepción si no se encuentra.
+     */
     @Transactional(readOnly = true)
     public Map<String, Object> getAuthenticatedClientData() {
         try {

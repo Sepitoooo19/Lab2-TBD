@@ -11,28 +11,58 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+
+/**
+ * La clase CoverageAreaService representa el servicio de áreas de cobertura en la aplicación.
+ * Esta clase contiene métodos para guardar, actualizar, eliminar y buscar áreas de cobertura en la base de datos.
+ */
 @Service
 public class CoverageAreaService {
 
+    /**
+     * Repositorio de áreas de cobertura.
+     * Este repositorio se utiliza para interactuar con la base de datos de áreas de cobertura.
+     */
     @Autowired
     private CoverageAreaRepository coverageAreaRepository;
 
+    /**
+     * Método para obtener todas las áreas de cobertura de la base de datos.
+     * @return Una lista de áreas de cobertura.
+     */
     public List<CoverageAreaEntity> getAllCoverageAreas() {
         return coverageAreaRepository.findAll();
     }
 
+    /**
+     * Método para buscar un área de cobertura por su ID.
+     * @param id El ID del área de cobertura a buscar.
+     * @return El área de cobertura encontrada o null si no se encuentra.
+     */
     public CoverageAreaEntity getCoverageAreaById(int id) {
         return coverageAreaRepository.findById(id);
     }
 
+    /**
+     * Método crear un área de cobertura.
+     * @param coverageArea El área de cobertura a crear.
+     */
     public void createCoverageArea(CoverageAreaEntity coverageArea) {
         coverageAreaRepository.save(coverageArea);
     }
 
+    /**
+     * Método para actualizar un área de cobertura.
+     * @param coverageArea El área de cobertura a actualizar.
+     */
     public void updateCoverageArea(CoverageAreaEntity coverageArea) {
         coverageAreaRepository.update(coverageArea);
     }
 
+    /**
+     * Método para eliminar un área de cobertura por su ID.
+     * @param id El ID del área de cobertura a eliminar.
+     */
     public void deleteCoverageArea(int id) {
         coverageAreaRepository.delete(id);
     }

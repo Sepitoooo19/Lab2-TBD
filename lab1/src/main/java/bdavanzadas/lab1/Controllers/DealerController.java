@@ -153,6 +153,13 @@ public class DealerController {
         return ResponseEntity.ok(dealerName);
     }
 
+    /**
+     * Obtiene los dealers con mejor desempeño.
+     * Por ejemplo, aquellos con menor tiempo de entrega o mayor número de pedidos.
+     *
+     * @return Lista de dealers destacados.
+     */
+
     @GetMapping("/top-performers")
     public ResponseEntity<List<Map<String, Object>>> getTopPerformingDealers() {
         List<Map<String, Object>> topDealers = dealerService.getTopPerformingDealers();
@@ -263,6 +270,13 @@ public class DealerController {
         }
     }
 
+
+    /**
+     * Obtiene todos los dealers con su distancia desde un punto de referencia.
+     * Este endpoint devuelve una lista de dealers junto con la distancia desde un punto de referencia.
+     *
+     * @return Lista de DealerWithDistanceDTO con los dealers y sus distancias.
+     */
     @GetMapping("/with-distance")
     public ResponseEntity<List<DealerWithDistanceDTO>> getAllDealersWithDistance() {
         List<DealerWithDistanceDTO> dealers = dealerService.getAllDealersWithDistance();

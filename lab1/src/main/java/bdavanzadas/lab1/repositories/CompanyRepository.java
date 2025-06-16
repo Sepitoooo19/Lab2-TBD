@@ -11,12 +11,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+
+/**
+ * La clase CompanyRepository representa el repositorio de compañías en la base de datos.
+ * Esta clase contiene métodos para guardar, actualizar, eliminar y buscar compañías en la base de datos.
+ */
 @Repository
 public class CompanyRepository implements CompanyRepositoryInt {
 
+
+    /**
+     * JdbcTemplate es una clase de Spring que simplifica el acceso a la base de datos.
+     * Se utiliza para ejecutar consultas SQL y mapear los resultados a objetos Java.
+     */
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+
+    /**
+     * Método para obtener todas las compañías con sus métricas de entregas, ventas y fallidas.
+     * @return Lista de CompanyEntity con las métricas correspondientes.
+     */
     public List<CompanyEntity> findAll() {
         String sql = """
         SELECT 
@@ -55,6 +70,12 @@ public class CompanyRepository implements CompanyRepositoryInt {
         );
     }
 
+
+    /**
+     * Método para buscar una compañía por su ID.
+     * @param id ID de la compañía a buscar.
+     * @return CompanyEntity con los datos de la compañía.
+     */
     public CompanyEntity findbyid(int id) {
         String sql = "SELECT id, name, email, phone, address, rut, type, deliveries, failed_deliveries, total_sales, ST_AsText(ubication) AS ubication FROM companies WHERE id=?";
         return jdbcTemplate.queryForObject(sql, new Object[]{id}, (rs, rowNum) ->
@@ -73,6 +94,11 @@ public class CompanyRepository implements CompanyRepositoryInt {
         );
     }
 
+    /**
+     * Método para crear una nueva compañía en la base de datos.
+     * @param c CompanyEntity con los datos de la compañía a crear.
+     *          * Este método inserta una nueva compañía en la tabla "companies" con los datos proporcionados.
+     */
     public void save(CompanyEntity c) {
         String sql = "INSERT INTO companies (name, email, phone, address, rut, type, deliveries, failed_deliveries, total_sales, ubication) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ST_GeomFromText(?, 4326))";
@@ -89,6 +115,12 @@ public class CompanyRepository implements CompanyRepositoryInt {
                 c.getUbication());
     }
 
+
+    /**
+     * Método para actualizar una compañía en la base de datos.
+     * @param c CompanyEntity con los datos de la compañía a actualizar.
+     *          * Este método actualiza los datos de una compañía existente en la tabla "companies".
+     */
     public void update(CompanyEntity c) {
         String sql = "UPDATE companies SET name = ?, email = ?, phone = ?, address = ?, rut = ?, type = ?, " +
                 "deliveries = ?, failed_deliveries = ?, total_sales = ?, ubication = ST_GeomFromText(?, 4326) " +
@@ -107,11 +139,22 @@ public class CompanyRepository implements CompanyRepositoryInt {
                 c.getId());
     }
 
+
+    /**
+     * Método para eliminar una compañía de la base de datos.
+     * @param id ID de la compañía a eliminar.
+     *          * Este método elimina una compañía de la tabla "companies" por su ID.
+     */
     public void delete(int id) {
         String sql = "DELETE FROM companies WHERE id=?";
         jdbcTemplate.update(sql, id);
     }
 
+
+    /**
+     * Método para obtener las compañías con más entregas fallidas.
+     * @return Lista de CompanyEntity con las compañías y sus métricas de entregas fallidas.
+     */
     public List<CompanyEntity> getCompaniesWithMostFailedDeliveries() {
         String sql = """
         SELECT
@@ -151,6 +194,12 @@ public class CompanyRepository implements CompanyRepositoryInt {
         );
     }
 
+
+    /**
+     * Método para actualizar las métricas de las compañías en la base de datos.
+     * Este método recalcula el número de entregas, entregas fallidas y ventas totales para cada compañía.
+     */
+
     public void updateCompanyMetrics() {
         String sql = """
         UPDATE companies c
@@ -180,6 +229,11 @@ public class CompanyRepository implements CompanyRepositoryInt {
         jdbcTemplate.update(sql);
     }
 
+
+    /**
+     * Método para obtener las compañías ordenadas por el volumen de comida entregada.
+     * @return Lista de mapas con los datos de las compañías y el volumen total de comida entregada.
+     */
     public List<Map<String, Object>> getCompaniesByDeliveredFoodVolume() {
         String sql = """
             SELECT 
@@ -209,6 +263,13 @@ public class CompanyRepository implements CompanyRepositoryInt {
     }
 
 
+
+    /**
+     * Método para encontrar los puntos de entrega más cercanos a una compañía específica.
+     * @param companyId ID de la compañía para la cual se buscan los puntos de entrega.
+     * @param limit Número máximo de puntos de entrega a retornar.
+     * @return Lista de NearestDeliveryPointDTO con los puntos de entrega más cercanos.
+     */
     public List<NearestDeliveryPointDTO> findNearestDeliveryPoints(int companyId, int limit) {
         String sql = """
             SELECT 
@@ -243,6 +304,11 @@ public class CompanyRepository implements CompanyRepositoryInt {
     }
 
 
+
+    /**
+     * Método para encontrar el punto de entrega más lejano para cada compañía.
+     * @return Lista de mapas con el nombre de la compañía y el punto de entrega más lejano.
+     */
     public List<Map<String, Object>> findFarthestDeliveryPointForEachCompany() {
         String sql = """
         WITH RankedDeliveries AS (
